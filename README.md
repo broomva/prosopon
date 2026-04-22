@@ -72,6 +72,12 @@ for env in session.scene_reset_stream(scene) {
 
 **v0.1.0 — research-quality proof.** The IR, protocol, runtime, and text compositor compile, test, and demo end-to-end. Glass (2D web), Field (shader), Spatial, and Audio compositors are designed but not yet implemented — see the [surface notes](docs/surfaces/) and [PLANS.md](PLANS.md).
 
+## Tracking
+
+- **Linear project:** [Prosopon — Display Server for Agents](https://linear.app/broomva/project/prosopon-display-server-for-agents-b75c23a05005)
+- **Milestones:** v0.1.0 (shipped 2026-04-21), v0.2.0 (2026-06-15), v0.3.0 (2026-07-31), v0.4.0 (2026-09-30)
+- **Bootstrap ticket:** [BRO-759](https://linear.app/broomva/issue/BRO-759) · Done
+
 ## License
 
 Apache-2.0 — see [LICENSE](LICENSE).
