@@ -1,0 +1,28 @@
+[package]
+name = "prosopon-sdk"
+description = "Ergonomic, agent-facing API for emitting Prosopon IR — builder patterns and presets."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme = "README.md"
+keywords = ["sdk", "agents", "ui", "ir", "builder"]
+categories = ["api-bindings", "gui"]
+
+[dependencies]
+prosopon-core.workspace = true
+prosopon-protocol.workspace = true
+prosopon-runtime.workspace = true
+
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt"] }
+pretty_assertions.workspace = true

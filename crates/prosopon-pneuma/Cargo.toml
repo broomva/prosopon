@@ -1,0 +1,29 @@
+[package]
+name = "prosopon-pneuma"
+description = "Pneuma<B=L0ToExternal> binding — the outward-facing display boundary of the Life Agent OS."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme = "README.md"
+keywords = ["pneuma", "life", "boundary", "agents", "display"]
+categories = ["api-bindings"]
+
+[dependencies]
+prosopon-core.workspace = true
+prosopon-protocol.workspace = true
+
+serde.workspace = true
+thiserror.workspace = true
+
+# NOTE: `aios-protocol::pneuma` does not yet exist in Life (spec-only at
+# `core/life/docs/specs/pneuma-trait-surface.md` as of 2026-04-21). This crate
+# ships with a local boundary definition that mirrors the spec exactly; when
+# aios-protocol lands, swap this to a `pub use aios_protocol::pneuma::*;` and
+# bump the minor version. See docs/rfcs/0003-pneuma-binding.md.
+
+[dev-dependencies]
+pretty_assertions.workspace = true

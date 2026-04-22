@@ -1,0 +1,24 @@
+[package]
+name = "hello-prosopon"
+description = "Minimal end-to-end Prosopon example — agent emits IR, text compositor renders."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "hello-prosopon"
+path = "src/main.rs"
+
+[dependencies]
+prosopon-core.workspace = true
+prosopon-runtime.workspace = true
+prosopon-compositor-text.workspace = true
+prosopon-sdk.workspace = true
+
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "time", "signal"] }
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+chrono.workspace = true

@@ -1,0 +1,16 @@
+#!/bin/sh
+# pre-commit: run the smoke gate before allowing a commit.
+# Activate once per clone: `git config core.hooksPath .githooks`
+
+set -e
+
+echo "[pre-commit] cargo fmt --all -- --check"
+cargo fmt --all -- --check
+
+echo "[pre-commit] cargo check --workspace"
+cargo check --workspace --all-targets
+
+echo "[pre-commit] cargo test --workspace"
+cargo test --workspace
+
+echo "[pre-commit] green"

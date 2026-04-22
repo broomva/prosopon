@@ -1,0 +1,123 @@
+# .control/policy.yaml
+#
+# Machine-readable mirror of CONTROL.md.
+# All gate commands are expected to exit non-zero on violation.
+# This file is consumed by agents and CI; the human source of truth is CONTROL.md.
+
+metadata:
+  project: prosopon
+  version: "0.1.0"
+  schema_version: 1
+
+profiles:
+  # Strict pre-merge gate.
+  strict:
+    sensors: [compile, clippy, tests, fmt]
+    block_on: [compile, clippy, tests, fmt]
+
+  # Relaxed development loop.
+  dev:
+    sensors: [compile, tests]
+    block_on: [compile]
+
+setpoints:
+  S1_1:
+    name: "compile clean"
+    description: "cargo check --workspace --all-targets has zero errors."
+    sensor: cargo-check
+    command: "cargo check --workspace --all-targets"
+    target: zero_errors
+
+  S1_2:
+    name: "clippy clean"
+    description: "cargo clippy -- -D warnings has zero errors/warnings."
+    sensor: cargo-clippy
+    command: "cargo clippy --workspace --all-targets -- -D warnings"
+    target: zero_warnings
+    deviation_until: "v0.2.0"
+    note: "v0.1 ships with some unfixed warnings; see CONTROL.md deviations."
+
+  S2_1:
+    name: "tests pass"
+    description: "cargo test --workspace passes."
+    sensor: cargo-test
+    command: "cargo test --workspace"
+    target: zero_failures
+
+  S2_2:
+    name: "core serde roundtrip coverage"
+    description: "Every public type in prosopon-core has a serde roundtrip test."
+    sensor: manual
+    target: full_coverage
+    deviation_until: "v0.2.0"
+
+  S2_3:
+    name: "compositor golden files"
+    description: "Every compositor has at least one golden-file test."
+    sensor: manual
+    target: full_coverage
+    deviation_until: "v0.2.0"
+
+  S3_1:
+    name: "formatted"
+    description: "cargo fmt --all -- --check passes."
+    sensor: cargo-fmt
+    command: "cargo fmt --all -- --check"
+    target: clean
+
+  S3_2:
+    name: "no crate-level allow(warnings)"
+    description: "No #![allow(warnings)] at crate level."
+    sensor: grep
+    command: "! grep -rn '#!\\[allow(warnings)\\]' crates/ examples/"
+    target: no_matches
+
+  S4_1:
+    name: "IR schema version tracked"
+    description: "prosopon-core::IR_SCHEMA_VERSION bumped on non-additive change."
+    sensor: manual
+
+  S4_2:
+    name: "wire protocol version tracked"
+    description: "prosopon-protocol::PROTOCOL_VERSION bumped on wire-incompatible change."
+    sensor: manual
+
+  S4_3:
+    name: "growable enums carry non_exhaustive"
+    description: "Intent and ProsoponEvent enums carry #[non_exhaustive]."
+    sensor: grep
+    command: "grep -q '#\\[non_exhaustive\\]' crates/prosopon-core/src/intent.rs && grep -q '#\\[non_exhaustive\\]' crates/prosopon-core/src/event.rs"
+
+  S5_1:
+    name: "RFCs numbered + statused"
+    description: "Every docs/rfcs/*.md begins with a status line."
+    sensor: manual
+
+  S6_2:
+    name: "prosopon-core is pure"
+    description: "prosopon-core has no tokio / async / network dependency."
+    sensor: grep
+    command: "! grep -E 'tokio|axum|reqwest' crates/prosopon-core/Cargo.toml"
+
+  S7_1:
+    name: "no styling in core"
+    description: "prosopon-core has no color / typography types."
+    sensor: grep
+    command: "! grep -iE 'color|font|padding|margin|rgb' crates/prosopon-core/src/*.rs"
+
+  S7_2:
+    name: "compositors do not cross-import"
+    description: "No compositor crate imports from another compositor crate."
+    sensor: grep
+    command: "! grep -rE 'use prosopon_compositor_[a-z]+' crates/prosopon-compositor-*/src/ 2>/dev/null"
+
+commands:
+  smoke:
+    description: "Primary pre-commit gate."
+    steps: [S1_1, S1_2, S2_1]
+    shell: "make smoke"
+
+  control-audit:
+    description: "Pre-push gate."
+    steps: [S1_1, S1_2, S2_1, S3_1]
+    shell: "make control-audit"

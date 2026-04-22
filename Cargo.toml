@@ -1,0 +1,83 @@
+[workspace]
+members = [
+    "crates/prosopon-core",
+    "crates/prosopon-protocol",
+    "crates/prosopon-runtime",
+    "crates/prosopon-compositor-text",
+    "crates/prosopon-sdk",
+    "crates/prosopon-cli",
+    "crates/prosopon-pneuma",
+    "examples/hello-prosopon",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "Apache-2.0"
+repository = "https://github.com/broomva/prosopon"
+homepage = "https://github.com/broomva/prosopon"
+authors = ["Carlos Escobar-Valbuena <carlosbvalbuena@gmail.com>"]
+readme = "README.md"
+keywords = ["agents", "ui", "display-server", "protocol", "ir"]
+categories = ["gui", "rendering", "development-tools"]
+
+[workspace.dependencies]
+# --- Internal crates (path + version for crates.io publish) ---
+prosopon-core = { path = "crates/prosopon-core", version = "0.1.0" }
+prosopon-protocol = { path = "crates/prosopon-protocol", version = "0.1.0" }
+prosopon-runtime = { path = "crates/prosopon-runtime", version = "0.1.0" }
+prosopon-compositor-text = { path = "crates/prosopon-compositor-text", version = "0.1.0" }
+prosopon-sdk = { path = "crates/prosopon-sdk", version = "0.1.0" }
+prosopon-pneuma = { path = "crates/prosopon-pneuma", version = "0.1.0" }
+
+# --- Serialization (IR is serde-first) ---
+serde = { version = "1", features = ["derive", "rc"] }
+serde_json = "1"
+
+# --- Error handling ---
+thiserror = "2"
+anyhow = "1"
+
+# --- Async runtime ---
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "signal", "io-util"] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+futures = "0.3"
+
+# --- Logging / tracing ---
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# --- Identifiers and time ---
+uuid = { version = "1", features = ["v4", "v7", "serde"] }
+chrono = { version = "0.4", features = ["serde", "clock"] }
+
+# --- Collections ---
+indexmap = { version = "2", features = ["serde"] }
+smallvec = { version = "1", features = ["serde", "const_generics"] }
+
+# --- Schema generation (for IR contract publication) ---
+schemars = { version = "0.8", features = ["chrono", "uuid1", "indexmap2"] }
+
+# --- CLI ---
+clap = { version = "4", features = ["derive", "env", "wrap_help"] }
+
+# --- Terminal rendering (for compositor-text) ---
+crossterm = "0.28"
+unicode-width = "0.2"
+unicode-segmentation = "1"
+
+# --- Testing helpers ---
+insta = { version = "1", features = ["yaml", "json", "redactions"] }
+proptest = "1"
+pretty_assertions = "1"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+debug = "line-tables-only"
+strip = "debuginfo"
+
+[profile.dev]
+split-debuginfo = "unpacked"

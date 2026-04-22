@@ -1,0 +1,31 @@
+[package]
+name = "prosopon-cli"
+description = "Inspection, validation, and demo CLI for the Prosopon display server."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme = "README.md"
+keywords = ["cli", "agents", "ui", "ir", "inspect"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "prosopon"
+path = "src/main.rs"
+
+[dependencies]
+prosopon-core.workspace = true
+prosopon-protocol.workspace = true
+prosopon-runtime.workspace = true
+prosopon-compositor-text.workspace = true
+prosopon-sdk.workspace = true
+
+clap.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "signal"] }
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+serde_json.workspace = true

@@ -1,0 +1,27 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Local env
+.env
+.env.local
+
+# Derived schema outputs (regenerate with `prosopon schema`)
+/schemas/*.generated.json
+
+# Coverage / profiling
+*.profraw
+*.profdata
+tarpaulin-report.html
+
+# macOS
+.AppleDouble
+.LSOverride

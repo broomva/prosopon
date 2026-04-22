@@ -1,0 +1,33 @@
+[package]
+name = "prosopon-runtime"
+description = "Reactive signal graph, compositor registry, and event bus for Prosopon."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+readme = "README.md"
+keywords = ["runtime", "reactive", "signals", "compositor", "agents"]
+categories = ["asynchronous", "gui"]
+
+[dependencies]
+prosopon-core.workspace = true
+prosopon-protocol.workspace = true
+
+tokio = { workspace = true, features = ["rt", "macros", "sync", "time"] }
+tokio-stream.workspace = true
+futures.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+indexmap.workspace = true
+smallvec.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util", "macros"] }
+insta.workspace = true
+pretty_assertions.workspace = true
