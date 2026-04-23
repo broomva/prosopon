@@ -1,16 +1,18 @@
-//! Integration test: start a GlassServer on 127.0.0.1:0, connect via WS, send
-//! a SceneReset through the compositor, and assert it arrives on the wire.
+//! Integration test: start a DaemonServer with glass surface, connect via WS,
+//! send a SceneReset through the compositor, and assert it arrives on the wire.
 
 use futures::StreamExt;
-use prosopon_compositor_glass::{GlassCompositor, GlassServer, GlassServerConfig};
+use prosopon_compositor_glass::{GlassCompositor, glass_surface};
 use prosopon_core::{Intent, Node, ProsoponEvent, Scene};
+use prosopon_daemon::{DaemonConfig, DaemonServer};
 use prosopon_runtime::Compositor;
 use tokio_tungstenite::connect_async;
 
 #[tokio::test]
 async fn ws_client_receives_envelopes() {
-    let server = GlassServer::bind(GlassServerConfig {
+    let server = DaemonServer::bind(DaemonConfig {
         addr: "127.0.0.1:0".parse().unwrap(),
+        surface: Some(glass_surface()),
     })
     .await
     .expect("bind succeeds");
@@ -18,12 +20,8 @@ async fn ws_client_receives_envelopes() {
     let mut compositor = GlassCompositor::new(server.fanout());
     let serve = tokio::spawn(server.serve());
 
-    // Allow the server to start accepting.
     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
-
     let (mut ws, _resp) = connect_async(&url).await.expect("ws connect");
-
-    // Give the WS upgrade a beat to subscribe before we send.
     tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 
     let scene = Scene::new(Node::new(Intent::Prose {
