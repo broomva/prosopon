@@ -7,12 +7,12 @@
 // component re-renders whenever apply() writes s.value.
 
 import { useEffect, useMemo, useState } from "preact/hooks";
+import { makeActionEmitter } from "./actions/emit";
+import { NodeView } from "./components/Node";
 import { RegistryContext } from "./registry/context";
 import { createSceneStore } from "./runtime/scene-store";
 import { SignalBus } from "./runtime/signal-bus";
 import { connectTransport, type Transport, type TransportState } from "./runtime/transport";
-import { makeActionEmitter } from "./actions/emit";
-import { NodeView } from "./components/Node";
 import type { Scene } from "./runtime/types";
 
 const EMPTY_SCENE: Scene = {

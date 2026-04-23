@@ -3,7 +3,7 @@
 // signal. Mirrors prosopon-runtime::SceneStore. Forward-compatible: unknown
 // event variants are no-op rather than throw.
 
-import { signal, type Signal } from "@preact/signals-core";
+import { type Signal, signal } from "@preact/signals-core";
 import type { Node, NodeId, NodePatch, ProsoponEvent, Scene } from "./types";
 
 export interface SceneStore {

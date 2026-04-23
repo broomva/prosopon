@@ -1,5 +1,5 @@
-import type { Intent } from "../runtime/types";
 import { useRegistry } from "../registry/context";
+import type { Intent } from "../runtime/types";
 
 export function Confirm({
   intent,
@@ -17,7 +17,11 @@ export function Confirm({
         <button
           type="button"
           onClick={() =>
-            emitAction({ slot: "confirm", source: nodeId, kind: { type: "confirm", accepted: true } })
+            emitAction({
+              slot: "confirm",
+              source: nodeId,
+              kind: { type: "confirm", accepted: true },
+            })
           }
         >
           Confirm

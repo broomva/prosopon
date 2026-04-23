@@ -1,6 +1,6 @@
-import type { Intent } from "../runtime/types";
+import { useId, useState } from "preact/hooks";
 import { useRegistry } from "../registry/context";
-import { useState } from "preact/hooks";
+import type { Intent } from "../runtime/types";
 
 export function Input({
   intent,
@@ -11,14 +11,17 @@ export function Input({
 }) {
   const { emitAction } = useRegistry();
   const [value, setValue] = useState<string>(String(intent.default ?? ""));
+  const inputId = useId();
   return (
     <div className="pgl-flex-col">
-      <label>{intent.prompt}</label>
+      <label htmlFor={inputId}>{intent.prompt}</label>
       <input
+        id={inputId}
         value={value}
         onInput={(e) => setValue((e.currentTarget as HTMLInputElement).value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") emitAction({ slot: "input", source: nodeId, kind: { type: "input", value } });
+          if (e.key === "Enter")
+            emitAction({ slot: "input", source: nodeId, kind: { type: "input", value } });
         }}
       />
     </div>

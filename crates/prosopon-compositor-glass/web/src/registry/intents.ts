@@ -5,8 +5,7 @@
 // to a component. Unknown variants (from future non_exhaustive additions) fall
 // through to <Fallback>.
 
-import { h, type ComponentType } from "preact";
-import type { Intent } from "../runtime/types";
+import { type ComponentType, h } from "preact";
 import { Audio } from "../components/Audio";
 import { Choice } from "../components/Choice";
 import { Citation } from "../components/Citation";
@@ -28,6 +27,7 @@ import { Stream } from "../components/Stream";
 import { ToolCall } from "../components/ToolCall";
 import { ToolResult } from "../components/ToolResult";
 import { Video } from "../components/Video";
+import type { Intent } from "../runtime/types";
 import { Fallback } from "./fallback";
 
 export interface IntentProps<T extends Intent = Intent> {

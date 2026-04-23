@@ -1,3 +1,3 @@
 export function Divider() {
-  return <div className="pgl-divider" role="separator" />;
+  return <hr className="pgl-divider" />;
 }

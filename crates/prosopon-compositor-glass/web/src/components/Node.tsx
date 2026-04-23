@@ -3,10 +3,10 @@
 // component handles its own body; this wrapper supplies priority styling and
 // action buttons.
 
-import type { Node as ProsoponNode } from "../runtime/types";
 import { useRegistry } from "../registry/context";
-import { hydrateIntent } from "../util/binding";
 import { renderIntent } from "../registry/intents";
+import type { Node as ProsoponNode } from "../runtime/types";
+import { hydrateIntent } from "../util/binding";
 
 export function NodeView({ node }: { node: ProsoponNode }) {
   const { scene } = useRegistry();

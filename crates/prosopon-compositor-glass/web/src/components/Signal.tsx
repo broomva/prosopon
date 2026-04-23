@@ -1,5 +1,5 @@
-import type { Intent } from "../runtime/types";
 import { useRegistry } from "../registry/context";
+import type { Intent } from "../runtime/types";
 import { previewSignal } from "../util/format";
 
 export function Signal({ intent }: { intent: Extract<Intent, { type: "signal" }> }) {

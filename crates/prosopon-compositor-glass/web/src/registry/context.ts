@@ -1,8 +1,8 @@
 // src/registry/context.ts
 import { createContext } from "preact";
 import { useContext } from "preact/hooks";
+import type { SignalBus } from "../runtime/signal-bus";
 import type { Scene, SignalValue } from "../runtime/types";
-import { SignalBus } from "../runtime/signal-bus";
 
 export interface ActionEmitPayload {
   slot: string;

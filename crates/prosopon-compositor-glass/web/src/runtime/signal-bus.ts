@@ -1,5 +1,5 @@
 // src/runtime/signal-bus.ts
-import { signal, type Signal } from "@preact/signals-core";
+import { type Signal, signal } from "@preact/signals-core";
 import type { SignalValue, Topic } from "./types";
 
 /** Reactive mapping of Topic → SignalValue. Backed by one Signal per topic. */

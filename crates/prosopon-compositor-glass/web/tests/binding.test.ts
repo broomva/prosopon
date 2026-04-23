@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { hydrateIntent } from "../src/util/binding";
 import type { Binding, Intent, SignalValue } from "../src/runtime/types";
+import { hydrateIntent } from "../src/util/binding";
 
 describe("binding hydration", () => {
   it("resolves Progress.pct from attr:pct binding", () => {

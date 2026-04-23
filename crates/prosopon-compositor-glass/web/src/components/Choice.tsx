@@ -1,5 +1,5 @@
-import type { Intent } from "../runtime/types";
 import { useRegistry } from "../registry/context";
+import type { Intent } from "../runtime/types";
 
 export function Choice({
   intent,

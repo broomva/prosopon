@@ -4,16 +4,16 @@
 // side. If an intent's rendered shape changes in either surface, both
 // goldens fail and force a conscious review.
 
-import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/preact";
+import { describe, expect, it } from "vitest";
+import { NodeView } from "../src/components/Node";
 import { RegistryContext } from "../src/registry/context";
 import { SignalBus } from "../src/runtime/signal-bus";
-import { NodeView } from "../src/components/Node";
 import type { Scene } from "../src/runtime/types";
 
 import demo from "./fixtures/demo_scene.json";
-import toolFlow from "./fixtures/tool_flow.json";
 import stream from "./fixtures/streaming_tokens.json";
+import toolFlow from "./fixtures/tool_flow.json";
 
 function renderScene(scene: Scene): string {
   const bus = new SignalBus();

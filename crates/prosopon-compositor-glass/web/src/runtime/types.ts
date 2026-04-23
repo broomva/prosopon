@@ -23,7 +23,7 @@ export type Intent =
   | { type: "citation"; source: string; anchor?: string }
   | { type: "signal"; topic: Topic; display?: "inline" | "sparkline" | "badge" }
   | { type: "stream"; id: StreamId; kind: "text" | "audio" | "binary" | "jsonl" }
-  | { type: "choice"; prompt: string; options: Array<ChoiceOption> }
+  | { type: "choice"; prompt: string; options: ChoiceOption[] }
   | { type: "confirm"; message: string; severity?: Severity }
   | { type: "input"; prompt: string; input: InputKind; default?: unknown }
   | { type: "tool_call"; name: string; args: unknown; stream?: StreamId }
@@ -123,8 +123,15 @@ export interface Scene {
 }
 
 export interface SceneHints {
-  preferred_surfaces?: Array<"text" | "two_d" | "three_d" | "shader" | "audio" | "spatial" | "tactile">;
-  intent_profile?: "balanced" | "dense_technical" | "ambient_monitor" | "cinematic" | "conversational";
+  preferred_surfaces?: Array<
+    "text" | "two_d" | "three_d" | "shader" | "audio" | "spatial" | "tactile"
+  >;
+  intent_profile?:
+    | "balanced"
+    | "dense_technical"
+    | "ambient_monitor"
+    | "cinematic"
+    | "conversational";
   locale?: string;
   density?: "compact" | "comfortable" | "spacious";
   viewport?: { cols: number; rows: number };
@@ -153,7 +160,10 @@ export interface NodePatch {
   intent?: Intent;
   attrs?: Record<string, unknown>;
   lifecycle?: Partial<Lifecycle>;
-  children?: { op: "replace"; children: Node[] } | { op: "append"; child: Node } | { op: "remove"; id: NodeId };
+  children?:
+    | { op: "replace"; children: Node[] }
+    | { op: "append"; child: Node }
+    | { op: "remove"; id: NodeId };
 }
 
 export interface Envelope {

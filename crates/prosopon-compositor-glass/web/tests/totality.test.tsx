@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/preact";
 import type { ComponentChildren } from "preact";
+import { describe, expect, it } from "vitest";
 import { RegistryContext } from "../src/registry/context";
-import { SignalBus } from "../src/runtime/signal-bus";
 import { renderIntent } from "../src/registry/intents";
+import { SignalBus } from "../src/runtime/signal-bus";
 import type { Intent, Scene } from "../src/runtime/types";
 
 const EMPTY_SCENE: Scene = {
