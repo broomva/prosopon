@@ -1,0 +1,2 @@
+# placeholder — `include_dir!` needs the directory to exist even before
+# `bun run build` populates it. Do not remove.

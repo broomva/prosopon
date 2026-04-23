@@ -1,0 +1,8 @@
+---
+source: crates/prosopon-compositor-text/tests/goldens.rs
+expression: out
+---
+Tool flow
+─────────
+  ⚙ grep({"q":"needle"})
+  ✓ ["a","b"]

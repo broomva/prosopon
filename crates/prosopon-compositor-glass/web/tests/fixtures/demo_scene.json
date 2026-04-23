@@ -1,0 +1,86 @@
+{
+  "id": "12faabeb-1fc6-4d64-888e-a4650dadb202",
+  "root": {
+    "id": "root",
+    "intent": {
+      "type": "section",
+      "title": "Prosopon demo",
+      "collapsible": false
+    },
+    "children": [
+      {
+        "id": "p1",
+        "intent": {
+          "type": "prose",
+          "text": "A prose child."
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.262941Z",
+          "priority": "normal",
+          "status": {
+            "kind": "active"
+          }
+        }
+      },
+      {
+        "id": "tc",
+        "intent": {
+          "type": "tool_call",
+          "name": "search",
+          "args": {
+            "q": "prosopon"
+          }
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "active"
+          }
+        }
+      },
+      {
+        "id": "pr",
+        "intent": {
+          "type": "progress",
+          "pct": 0.66,
+          "label": "scoring"
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263049Z",
+          "priority": "normal",
+          "status": {
+            "kind": "active"
+          }
+        }
+      }
+    ],
+    "bindings": [],
+    "actions": [],
+    "attrs": {},
+    "lifecycle": {
+      "created_at": "2026-04-23T14:08:43.262916Z",
+      "priority": "normal",
+      "status": {
+        "kind": "active"
+      }
+    }
+  },
+  "signals": {},
+  "hints": {
+    "intent_profile": "balanced",
+    "density": "comfortable"
+  }
+}

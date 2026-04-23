@@ -4,6 +4,7 @@ members = [
     "crates/prosopon-protocol",
     "crates/prosopon-runtime",
     "crates/prosopon-compositor-text",
+    "crates/prosopon-compositor-glass",
     "crates/prosopon-sdk",
     "crates/prosopon-cli",
     "crates/prosopon-pneuma",
@@ -29,6 +30,7 @@ prosopon-core = { path = "crates/prosopon-core", version = "0.1.0" }
 prosopon-protocol = { path = "crates/prosopon-protocol", version = "0.1.0" }
 prosopon-runtime = { path = "crates/prosopon-runtime", version = "0.1.0" }
 prosopon-compositor-text = { path = "crates/prosopon-compositor-text", version = "0.1.0" }
+prosopon-compositor-glass = { path = "crates/prosopon-compositor-glass", version = "0.2.0" }
 prosopon-sdk = { path = "crates/prosopon-sdk", version = "0.1.0" }
 prosopon-pneuma = { path = "crates/prosopon-pneuma", version = "0.1.0" }
 
@@ -72,6 +74,14 @@ unicode-segmentation = "1"
 insta = { version = "1", features = ["yaml", "json", "redactions"] }
 proptest = "1"
 pretty_assertions = "1"
+
+# --- Web server (compositor-glass, prosopon-daemon) ---
+axum = { version = "0.8", features = ["ws", "macros"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+include_dir = "0.7"
+mime_guess = "2"
+bytes = "1"
 
 [profile.release]
 lto = "thin"

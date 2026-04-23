@@ -1,0 +1,68 @@
+{
+  "id": "f5c9dfe8-4a11-4cbd-9be3-1e2e6b7d9c42",
+  "root": {
+    "id": "root",
+    "intent": {
+      "type": "section",
+      "title": "Tool flow",
+      "collapsible": false
+    },
+    "children": [
+      {
+        "id": "tc",
+        "intent": {
+          "type": "tool_call",
+          "name": "grep",
+          "args": {
+            "q": "needle"
+          }
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "active"
+          }
+        }
+      },
+      {
+        "id": "tr",
+        "intent": {
+          "type": "tool_result",
+          "success": true,
+          "payload": ["a", "b"]
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263100Z",
+          "priority": "normal",
+          "status": {
+            "kind": "active"
+          }
+        }
+      }
+    ],
+    "bindings": [],
+    "actions": [],
+    "attrs": {},
+    "lifecycle": {
+      "created_at": "2026-04-23T14:08:43.262916Z",
+      "priority": "normal",
+      "status": {
+        "kind": "active"
+      }
+    }
+  },
+  "signals": {},
+  "hints": {
+    "intent_profile": "balanced",
+    "density": "comfortable"
+  }
+}

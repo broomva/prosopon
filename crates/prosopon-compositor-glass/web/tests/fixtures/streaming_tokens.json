@@ -1,0 +1,47 @@
+{
+  "id": "1b3a7e44-68c9-4d19-9a1a-6a13b0ad7f77",
+  "root": {
+    "id": "root",
+    "intent": {
+      "type": "section",
+      "title": "Streaming tokens",
+      "collapsible": false
+    },
+    "children": [
+      {
+        "id": "stream",
+        "intent": {
+          "type": "stream",
+          "id": "chat",
+          "kind": "text"
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "active"
+          }
+        }
+      }
+    ],
+    "bindings": [],
+    "actions": [],
+    "attrs": {},
+    "lifecycle": {
+      "created_at": "2026-04-23T14:08:43.262916Z",
+      "priority": "normal",
+      "status": {
+        "kind": "active"
+      }
+    }
+  },
+  "signals": {},
+  "hints": {
+    "intent_profile": "balanced",
+    "density": "comfortable"
+  }
+}

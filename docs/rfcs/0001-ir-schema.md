@@ -99,6 +99,11 @@ Guidelines:
 
 ## Well-known attribute keys
 
+Compositor-specific hints MAY use a dotted namespace (`glass.*`, `text.*`,
+`field.*`, `audio.*`, `spatial.*`) so multi-surface scenes can carry
+per-compositor overrides without conflict. Unnamespaced keys apply across
+compositors.
+
 | Key | Value | Applies to | Meaning |
 |---|---|---|---|
 | `emphasis` | `"low"` \| `"normal"` \| `"high"` | any | Visual prominence |
@@ -106,6 +111,7 @@ Guidelines:
 | `width_hint` | `0.0..=1.0` | structural | Preferred fraction of available width |
 | `voice` | voice id (e.g. `"gemini.kore"`) | Audio, Prose (for TTS) | Preferred TTS voice |
 | `density_hint` | `"compact"` \| `"comfortable"` \| `"spacious"` | structural | Per-subtree override of scene density |
+| `glass.variant` | `"card"` \| `"inline"` \| `"ambient"` | structural | Glass compositor override for the presentation density of the bearing node (card = bordered + padded; inline = flush; ambient = de-emphasized, reduced opacity). |
 
 New well-known keys are added via PR updating this RFC.
 

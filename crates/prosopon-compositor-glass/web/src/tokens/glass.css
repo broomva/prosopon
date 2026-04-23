@@ -1,0 +1,114 @@
+/* src/tokens/glass.css */
+/* Arcan Glass tokens — subset inlined for bundle-standalone compositor.
+   Pulled from apps/arcan-glass/arcan-glass/references on 2026-04-22. */
+:root {
+  --pgl-bg: hsl(240 33% 6%);
+  --pgl-surface: hsl(240 20% 10% / 0.72);
+  --pgl-surface-elevated: hsl(240 20% 14% / 0.88);
+  --pgl-border: hsl(240 30% 30% / 0.3);
+  --pgl-text: hsl(0 0% 98%);
+  --pgl-text-dim: hsl(0 0% 60%);
+  --pgl-accent: hsl(239 84% 67%);
+  --pgl-accent-soft: hsl(239 84% 67% / 0.15);
+  --pgl-success: hsl(142 71% 45%);
+  --pgl-warning: hsl(45 93% 58%);
+  --pgl-danger: hsl(0 84% 60%);
+  --pgl-font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --pgl-font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --pgl-radius: 10px;
+  --pgl-radius-sm: 6px;
+  --pgl-space-1: 4px;
+  --pgl-space-2: 8px;
+  --pgl-space-3: 12px;
+  --pgl-space-4: 16px;
+  --pgl-space-6: 24px;
+  --pgl-space-8: 32px;
+  --pgl-shadow: 0 1px 2px hsl(240 33% 0% / 0.4), 0 8px 24px hsl(240 33% 0% / 0.3);
+  --pgl-glass-blur: 16px;
+}
+.pgl-root {
+  margin: 0;
+  padding: 0;
+  background: var(--pgl-bg);
+  color: var(--pgl-text);
+  font-family: var(--pgl-font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.pgl-shell {
+  padding: var(--pgl-space-6);
+  max-width: 900px;
+  margin: 0 auto;
+}
+.pgl-card {
+  background: var(--pgl-surface);
+  border: 1px solid var(--pgl-border);
+  border-radius: var(--pgl-radius);
+  padding: var(--pgl-space-4);
+  backdrop-filter: blur(var(--pgl-glass-blur));
+}
+.pgl-dim {
+  color: var(--pgl-text-dim);
+}
+.pgl-mono {
+  font-family: var(--pgl-font-mono);
+}
+.pgl-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pgl-space-3);
+}
+.pgl-flex-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--pgl-space-3);
+}
+.pgl-divider {
+  height: 1px;
+  background: var(--pgl-border);
+  margin: var(--pgl-space-3) 0;
+}
+.pgl-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--pgl-space-2);
+}
+.pgl-progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--pgl-accent-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.pgl-progress-fill {
+  height: 100%;
+  background: var(--pgl-accent);
+  transition: width 120ms linear;
+}
+.pgl-tool-call {
+  font-family: var(--pgl-font-mono);
+  color: var(--pgl-text-dim);
+}
+.pgl-tool-result-ok {
+  color: var(--pgl-success);
+}
+.pgl-tool-result-err {
+  color: var(--pgl-danger);
+}
+.pgl-fallback {
+  color: var(--pgl-text-dim);
+  font-style: italic;
+}
+.pgl-section-title {
+  font-weight: 700;
+  font-size: 1.1em;
+  margin: 0 0 var(--pgl-space-2) 0;
+}
+.pgl-code {
+  background: var(--pgl-surface-elevated);
+  border-radius: var(--pgl-radius-sm);
+  padding: var(--pgl-space-3);
+  font-family: var(--pgl-font-mono);
+  font-size: 0.9em;
+  overflow-x: auto;
+}

@@ -44,7 +44,9 @@ impl SceneStore {
         match event {
             ProsoponEvent::SceneReset { scene } => {
                 let prev = std::mem::replace(&mut self.scene, scene);
-                Ok(StoreEvent::Reset { previous: prev })
+                Ok(StoreEvent::Reset {
+                    previous: Box::new(prev),
+                })
             }
             ProsoponEvent::NodeAdded { parent, node } => {
                 let parent_node = self
@@ -91,11 +93,24 @@ impl SceneStore {
 /// Summary of what an apply() did.
 #[derive(Debug, Clone, PartialEq)]
 pub enum StoreEvent {
-    Reset { previous: Scene },
-    Added { parent: NodeId, id: NodeId },
-    Updated { id: NodeId },
-    Removed { id: NodeId },
-    SignalUpdated { topic: prosopon_core::Topic },
+    /// The scene was wholesale replaced. `previous` is boxed to keep the
+    /// enum tag-word small; `StoreEvent::Reset` is rare.
+    Reset {
+        previous: Box<Scene>,
+    },
+    Added {
+        parent: NodeId,
+        id: NodeId,
+    },
+    Updated {
+        id: NodeId,
+    },
+    Removed {
+        id: NodeId,
+    },
+    SignalUpdated {
+        topic: prosopon_core::Topic,
+    },
     Passthrough,
 }
 
@@ -151,10 +166,12 @@ mod tests {
             })
             .unwrap();
 
-        let mut patch = NodePatch::default();
-        patch.intent = Some(Intent::Prose {
-            text: "updated".into(),
-        });
+        let patch = NodePatch {
+            intent: Some(Intent::Prose {
+                text: "updated".into(),
+            }),
+            ..Default::default()
+        };
         store
             .apply(ProsoponEvent::NodeUpdated {
                 id: NodeId::from_raw("c1"),
