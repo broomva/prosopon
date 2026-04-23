@@ -4,6 +4,23 @@ All notable changes to this project will be documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0-alpha.2] — 2026-04-23
+
+### Added
+- `prosopon-daemon` crate — shared HTTP/WebSocket/SSE transport layer. Every
+  compositor now registers a `SurfaceBundle` with a `DaemonServer` instead of
+  vendoring its own axum stack. Unblocks `arcan-prosopon` (BRO-773),
+  `prosopon-lago` (BRO-771), `prosopon-vigil` (BRO-772).
+- `prosopon-daemon` binary — headless daemon mode (no surface bundle), useful
+  for external browser clients.
+
+### Changed
+- `prosopon-compositor-glass` now depends on `prosopon-daemon` for
+  `EnvelopeFanout`, `EnvelopeReceiver`, and the HTTP server. Re-exports
+  preserved for back-compat — `use prosopon_compositor_glass::EnvelopeFanout`
+  still works. `GlassServer` removed; `prosopon-glass serve` internally
+  constructs a `DaemonServer` with `glass_surface()` as its asset bundle.
+
 ## [0.2.0-alpha] — 2026-04-23
 
 ### Added
