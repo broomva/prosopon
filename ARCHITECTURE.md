@@ -45,16 +45,16 @@ The dependency direction is downward only. A compositor never reaches into the r
 ## Crate dependency graph
 
 ```
-prosopon-core ◄──┬── prosopon-protocol   ◄── prosopon-cli
+prosopon-core ◄──┬── prosopon-protocol   ◄── prosopon-daemon ◄── prosopon-compositor-glass
                  ├── prosopon-runtime     ◄── prosopon-sdk
-                 └── prosopon-pneuma      ◄── prosopon-compositor-text
+                 ├── prosopon-pneuma      ◄── prosopon-compositor-text
+                 └─────────────────────── ◄── prosopon-cli
                                                        ▲
                                                        │
-                                                 prosopon-cli
                                                  hello-prosopon
 ```
 
-`prosopon-core` has no internal dependencies. `prosopon-protocol` depends only on `prosopon-core`. `prosopon-runtime` depends on core + protocol. Compositors depend on core + runtime. The SDK depends on core + protocol + runtime. The CLI depends on everything.
+`prosopon-core` has no internal dependencies. `prosopon-protocol` depends only on `prosopon-core`. `prosopon-runtime` depends on core + protocol. `prosopon-daemon` owns the shared HTTP/WebSocket/SSE transport + envelope fanout, depending on core + protocol. Compositors depend on core + runtime; web-facing compositors (currently only `prosopon-compositor-glass`; future `prosopon-compositor-field`, `prosopon-compositor-text-web`) additionally depend on `prosopon-daemon` and register their asset bundle as a `SurfaceBundle`. The SDK depends on core + protocol + runtime. The CLI depends on everything.
 
 This keeps the **protocol + IR contract** independent of runtime/tokio/serialization choices downstream. A compositor in another language only needs the JSON schema that `prosopon-core` publishes; it does not need to port the runtime.
 
