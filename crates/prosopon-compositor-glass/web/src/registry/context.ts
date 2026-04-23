@@ -4,10 +4,16 @@ import { useContext } from "preact/hooks";
 import type { Scene, SignalValue } from "../runtime/types";
 import { SignalBus } from "../runtime/signal-bus";
 
+export interface ActionEmitPayload {
+  slot: string;
+  source: string;
+  kind: unknown;
+}
+
 export interface RegistryCtx {
   scene: Scene;
   bus: SignalBus;
-  emitAction: (envelope: unknown) => void;
+  emitAction: (payload: ActionEmitPayload) => void;
 }
 
 // biome-ignore lint/style/noNonNullAssertion: provider asserts this in layout
