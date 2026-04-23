@@ -12,7 +12,7 @@ Every change is measured against these — if one is relaxed, log the deviation 
 ### S2 — Tests
 - [x] **S2.1** `cargo test --workspace` passes (v0.1: 49 tests, 0 failures).
 - [ ] **S2.2** Every public type in `prosopon-core` has a serde roundtrip test. *(v0.1: partial; v0.2 target)*
-- [ ] **S2.3** Every compositor has at least one golden-file test. *(v0.2 target)*
+- [~] **S2.3** Every compositor has at least one golden-file test. *(text + glass shipped v0.2.0-alpha; field/spatial/audio target v0.3+)*
 
 ### S3 — Formatting + lint
 - [x] **S3.1** `cargo fmt --all -- --check` passes.

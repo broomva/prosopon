@@ -31,9 +31,13 @@
 - [ ] [BRO-764](https://linear.app/broomva/issue/BRO-764) — `prosopon-compat-a2ui` — accept A2UI `createSurface` / `updateComponents` / `updateDataModel` / `deleteSurface` messages.
 - [ ] [BRO-765](https://linear.app/broomva/issue/BRO-765) — `prosopon-compat-ag-ui` — AG-UI event → ProsoponEvent translation.
 - [ ] [BRO-766](https://linear.app/broomva/issue/BRO-766) — `prosopon-compat-ai-sdk` — Vercel AI SDK 5.0 `message.parts[]` importer.
-- [ ] [BRO-767](https://linear.app/broomva/issue/BRO-767) — `prosopon-compositor-glass` — 2D web compositor (TypeScript, consumes published JSON schema).
+- [x] [BRO-767](https://linear.app/broomva/issue/BRO-767) — `prosopon-compositor-glass` — 2D web compositor (TypeScript, consumes published JSON schema). Shipped on branch `bro-767-glass-compositor` (PR link TBD at commit time).
 - [ ] [BRO-768](https://linear.app/broomva/issue/BRO-768) — `prosopon-daemon` — long-running HTTP + WebSocket server (axum).
 - [ ] [BRO-769](https://linear.app/broomva/issue/BRO-769) — Re-enable `clippy -D warnings` gate in CI.
+
+**v0.2 deferred** — Follow-ups that landed as tickets during BRO-767:
+- [ ] [BRO-862](https://linear.app/broomva/issue/BRO-862) — public demo route on broomva.tech, deferred from BRO-767.
+- [ ] [BRO-778](https://linear.app/broomva/issue/BRO-778) — WS client → runtime `ActionEmitted` round-trip.
 
 ## v0.3.0 — Life integration + field compositor (target 2026-07-31)
 
