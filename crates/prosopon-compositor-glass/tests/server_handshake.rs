@@ -26,7 +26,9 @@ async fn ws_client_receives_envelopes() {
     // Give the WS upgrade a beat to subscribe before we send.
     tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 
-    let scene = Scene::new(Node::new(Intent::Prose { text: "hello".into() }));
+    let scene = Scene::new(Node::new(Intent::Prose {
+        text: "hello".into(),
+    }));
     compositor
         .apply(&ProsoponEvent::SceneReset { scene })
         .unwrap();

@@ -17,10 +17,10 @@
 
 #![forbid(unsafe_code)]
 
+pub mod assets;
 pub mod compositor;
 pub mod fanout;
 pub mod server;
-pub mod assets;
 
 pub use compositor::{GlassCompositor, GlassCompositorBuilder};
 pub use fanout::{EnvelopeFanout, EnvelopeReceiver};
