@@ -1,31 +1,33 @@
 //! # prosopon-compositor-glass
 //!
-//! 2D web compositor for Prosopon — serves an embedded Preact bundle over HTTP,
-//! streams [`prosopon_protocol::Envelope`] over WebSocket + SSE, and implements
-//! [`prosopon_runtime::Compositor`] for in-process use.
+//! 2D web compositor for Prosopon — Arcan Glass-styled Preact bundle.
 //!
-//! The web bundle under `web/dist/` is embedded at build time via `include_dir`.
-//! Agents can consume this crate three ways:
+//! Register with a [`prosopon_daemon::DaemonServer`]:
 //!
-//! 1. **In-process compositor.** Register a [`GlassCompositor`] on a
-//!    [`prosopon_runtime::Runtime`]; envelopes fan out to any connected browser.
-//! 2. **Standalone server.** Use the `prosopon-glass` binary (`serve --port 4321`).
-//! 3. **Consumed bundle.** Import the `@prosopon/compositor-glass` TS package from
-//!    a downstream web app and connect it to any Prosopon-speaking endpoint.
+//! ```no_run
+//! use prosopon_compositor_glass::{GlassCompositor, glass_surface};
+//! use prosopon_daemon::{DaemonConfig, DaemonServer};
 //!
-//! See `docs/surfaces/glass.md` for the design note.
+//! # async fn run() -> anyhow::Result<()> {
+//! let server = DaemonServer::bind(DaemonConfig {
+//!     addr: "127.0.0.1:4321".parse()?,
+//!     surface: Some(glass_surface()),
+//! }).await?;
+//! let _compositor = GlassCompositor::new(server.fanout());
+//! server.serve().await?;
+//! # Ok(())
+//! # }
+//! ```
 
 #![forbid(unsafe_code)]
 
-pub mod assets;
 pub mod compositor;
-pub mod fanout;
-pub mod server;
+pub mod surface;
 
 pub use compositor::{GlassCompositor, GlassCompositorBuilder};
-pub use fanout::{EnvelopeFanout, EnvelopeReceiver};
-pub use server::{GlassServer, GlassServerConfig};
+pub use surface::glass_surface;
 
-/// Version of this compositor crate. Distinct from `PROTOCOL_VERSION` and
-/// `IR_SCHEMA_VERSION` — bumps independently.
+// Back-compat re-exports so consumers don't break.
+pub use prosopon_daemon::{EnvelopeFanout, EnvelopeReceiver, FanoutError};
+
 pub const COMPOSITOR_VERSION: &str = env!("CARGO_PKG_VERSION");
