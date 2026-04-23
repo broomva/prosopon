@@ -5,7 +5,7 @@
 // to a component. Unknown variants (from future non_exhaustive additions) fall
 // through to <Fallback>.
 
-import type { ComponentType } from "preact";
+import { h, type ComponentType } from "preact";
 import type { Intent } from "../runtime/types";
 import { Audio } from "../components/Audio";
 import { Choice } from "../components/Choice";
@@ -69,6 +69,10 @@ export const INTENT_REGISTRY: Dispatch = {
 
 export function renderIntent(intent: Intent, nodeId: string) {
   const Component = INTENT_REGISTRY[intent.type as keyof typeof INTENT_REGISTRY] ?? Fallback;
+  // `h(Component, props)` is Preact's hyperscript — equivalent to JSX, and the
+  // correct way to construct a VNode from a dynamically-selected component.
+  // Calling `Component(props)` directly would bypass the reconciler and break
+  // hook ordering for stateful intent components (Input, Choice, Confirm).
   // biome-ignore lint/suspicious/noExplicitAny: registry is total by construction
-  return (Component as any)({ intent, nodeId });
+  return h(Component as any, { intent, nodeId });
 }
