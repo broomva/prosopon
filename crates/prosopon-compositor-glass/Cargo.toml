@@ -1,0 +1,43 @@
+[package]
+name = "prosopon-compositor-glass"
+version = "0.2.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Prosopon 2D web compositor — Arcan Glass-styled, axum + embedded Preact bundle"
+repository.workspace = true
+keywords = ["prosopon", "agents", "ui", "compositor", "web"]
+categories.workspace = true
+readme = "README.md"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+prosopon-core = { workspace = true }
+prosopon-protocol = { workspace = true }
+prosopon-runtime = { workspace = true }
+
+axum = { workspace = true }
+tokio = { workspace = true }
+tokio-stream = { workspace = true }
+futures = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+include_dir = { workspace = true }
+mime_guess = { workspace = true }
+bytes = { workspace = true }
+
+clap = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+tracing-subscriber = { workspace = true }
+pretty_assertions = { workspace = true }
