@@ -1,0 +1,48 @@
+[package]
+name = "prosopon-daemon"
+version = "0.2.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Prosopon HTTP/WebSocket/SSE daemon — envelope fanout + axum server shared by every compositor"
+repository.workspace = true
+keywords = ["prosopon", "agents", "daemon", "websocket", "sse"]
+categories.workspace = true
+readme = "README.md"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "prosopon-daemon"
+path = "src/bin/prosopon-daemon.rs"
+
+[dependencies]
+prosopon-core = { workspace = true }
+prosopon-protocol = { workspace = true }
+
+axum = { workspace = true }
+tokio = { workspace = true }
+tokio-stream = { workspace = true }
+futures = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+include_dir = { workspace = true }
+mime_guess = { workspace = true }
+async-stream = "0.3"
+clap = { workspace = true }
+anyhow = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+tokio-tungstenite = "0.26"
+pretty_assertions = { workspace = true }
+chrono = { workspace = true }
