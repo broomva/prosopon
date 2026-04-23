@@ -7,7 +7,10 @@ use clap::{Parser, Subcommand};
 use prosopon_daemon::{DaemonConfig, DaemonServer};
 
 #[derive(Parser)]
-#[command(name = "prosopon-daemon", about = "Prosopon daemon — HTTP/WS/SSE transport")]
+#[command(
+    name = "prosopon-daemon",
+    about = "Prosopon daemon — HTTP/WS/SSE transport"
+)]
 struct Cli {
     #[command(subcommand)]
     cmd: Cmd,
