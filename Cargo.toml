@@ -5,6 +5,7 @@ members = [
     "crates/prosopon-runtime",
     "crates/prosopon-compositor-text",
     "crates/prosopon-compositor-glass",
+    "crates/prosopon-daemon",
     "crates/prosopon-sdk",
     "crates/prosopon-cli",
     "crates/prosopon-pneuma",
@@ -31,6 +32,7 @@ prosopon-protocol = { path = "crates/prosopon-protocol", version = "0.1.0" }
 prosopon-runtime = { path = "crates/prosopon-runtime", version = "0.1.0" }
 prosopon-compositor-text = { path = "crates/prosopon-compositor-text", version = "0.1.0" }
 prosopon-compositor-glass = { path = "crates/prosopon-compositor-glass", version = "0.2.0" }
+prosopon-daemon = { path = "crates/prosopon-daemon", version = "0.2.0" }
 prosopon-sdk = { path = "crates/prosopon-sdk", version = "0.1.0" }
 prosopon-pneuma = { path = "crates/prosopon-pneuma", version = "0.1.0" }
 
