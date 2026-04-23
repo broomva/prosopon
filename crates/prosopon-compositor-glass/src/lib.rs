@@ -21,7 +21,6 @@
 
 #![forbid(unsafe_code)]
 
-pub mod assets;
 pub mod compositor;
 pub mod surface;
 
