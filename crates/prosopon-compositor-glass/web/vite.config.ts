@@ -5,7 +5,9 @@ export default defineConfig({
   plugins: [preact()],
   build: {
     outDir: "dist",
-    emptyOutDir: true,
+    // Keep `dist/.gitkeep` alive for include_dir! on fresh clones; library
+    // builds write a fixed set of files so stale accumulation isn't a risk.
+    emptyOutDir: false,
     lib: {
       entry: "src/index.tsx",
       name: "ProsoponGlass",
