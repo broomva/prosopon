@@ -1,0 +1,9 @@
+---
+source: crates/prosopon-compositor-text/tests/goldens.rs
+expression: out
+---
+Prosopon demo
+─────────────
+  A prose child.
+  ⚙ search({"q":"prosopon"})
+  ███████████████░░░░░░░░░  66% scoring
