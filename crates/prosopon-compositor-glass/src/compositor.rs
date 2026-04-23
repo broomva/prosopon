@@ -8,7 +8,7 @@ use prosopon_protocol::{Envelope, SessionId};
 use prosopon_runtime::{Capabilities, Compositor, CompositorError, CompositorId};
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use crate::fanout::EnvelopeFanout;
+use prosopon_daemon::EnvelopeFanout;
 
 /// A glass-surface compositor.
 pub struct GlassCompositor {

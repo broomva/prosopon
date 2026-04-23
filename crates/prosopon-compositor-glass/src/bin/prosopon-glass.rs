@@ -2,8 +2,9 @@
 //! fixture envelope stream. Useful for dev, goldens, and demo pages.
 
 use clap::{Parser, Subcommand};
-use prosopon_compositor_glass::{GlassCompositor, GlassServer, GlassServerConfig};
+use prosopon_compositor_glass::{GlassCompositor, glass_surface};
 use prosopon_core::ProsoponEvent;
+use prosopon_daemon::{DaemonConfig, DaemonServer};
 use prosopon_runtime::Compositor;
 use std::path::PathBuf;
 
@@ -32,10 +33,11 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     match cli.cmd {
         Cmd::Serve { addr, fixture } => {
-            let config = GlassServerConfig {
+            let config = DaemonConfig {
                 addr: addr.parse()?,
+                surface: Some(glass_surface()),
             };
-            let server = GlassServer::bind(config).await?;
+            let server = DaemonServer::bind(config).await?;
             println!("prosopon-glass serving at http://{}/", server.local_addr());
             let mut compositor = GlassCompositor::new(server.fanout());
             if let Some(path) = fixture {
