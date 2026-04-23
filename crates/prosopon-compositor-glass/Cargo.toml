@@ -14,6 +14,10 @@ readme = "README.md"
 [lib]
 path = "src/lib.rs"
 
+[[bin]]
+name = "prosopon-glass"
+path = "src/bin/prosopon-glass.rs"
+
 [dependencies]
 prosopon-core = { workspace = true }
 prosopon-protocol = { workspace = true }
@@ -36,6 +40,9 @@ mime_guess = { workspace = true }
 bytes = { workspace = true }
 
 clap = { workspace = true }
+async-stream = "0.3"
+anyhow = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
@@ -43,3 +50,4 @@ tracing-subscriber = { workspace = true }
 pretty_assertions = { workspace = true }
 chrono = { workspace = true }
 serde_json = { workspace = true }
+tokio-tungstenite = "0.26"
