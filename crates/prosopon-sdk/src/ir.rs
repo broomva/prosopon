@@ -5,8 +5,8 @@
 //! `Node`, or `.into_scene()` to wrap in a `Scene`.
 
 use prosopon_core::{
-    ActionKind, ActionSlot, Binding, ChoiceOption, GroupKind, Intent, Node, NodeId, Priority,
-    Scene, Severity, SignalRef, StreamId, Topic, Value,
+    ActionKind, ActionSlot, Binding, ChoiceOption, FileWriteKind, GroupKind, Intent, Node, NodeId,
+    Priority, Scene, Severity, SignalRef, StreamId, Topic, Value,
 };
 
 /// Wraps a `Node` with a fluent interface for agents.
@@ -200,6 +200,38 @@ pub fn tool_call(name: impl Into<String>, args: Value) -> NodeBuilder {
 #[must_use]
 pub fn tool_result(success: bool, payload: Value) -> NodeBuilder {
     NodeBuilder(Node::new(Intent::ToolResult { success, payload }))
+}
+
+/// `Intent::FileRead` — construct a pending filesystem read for `path`.
+///
+/// Call `.bytes(n)` / `.mime(s)` / `.content(s)` before pushing the node to
+/// the scene; or emit as-is and patch `content` in via `NodeUpdated` when the
+/// read resolves.
+#[must_use]
+pub fn file_read(path: impl Into<String>) -> NodeBuilder {
+    NodeBuilder(Node::new(Intent::FileRead {
+        path: path.into(),
+        content: None,
+        bytes: None,
+        mime: None,
+    }))
+}
+
+/// `Intent::FileWrite` — construct a pending filesystem write of the given `kind`.
+///
+/// Typical shape: `ir::file_write("notes/a.md", FileWriteKind::Create)` for the
+/// pending node, then `NodeUpdated` with a patched `content` once the write
+/// resolves. Agents MAY provide `content` immediately for atomic writes.
+#[must_use]
+pub fn file_write(path: impl Into<String>, op: FileWriteKind) -> NodeBuilder {
+    NodeBuilder(Node::new(Intent::FileWrite {
+        path: path.into(),
+        op,
+        content: None,
+        bytes: None,
+        title: None,
+        mime: None,
+    }))
 }
 
 /// `Intent::Choice`.

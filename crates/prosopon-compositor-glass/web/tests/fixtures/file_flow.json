@@ -1,0 +1,173 @@
+{
+  "id": "7c8a1e22-1dbb-4f3e-b8a2-44fd9c0e3c17",
+  "root": {
+    "id": "root",
+    "intent": {
+      "type": "section",
+      "title": "File flow",
+      "collapsible": false
+    },
+    "children": [
+      {
+        "id": "fr-pending",
+        "intent": {
+          "type": "file_read",
+          "path": "notes/context.md"
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "pending"
+          }
+        }
+      },
+      {
+        "id": "fr-resolved",
+        "intent": {
+          "type": "file_read",
+          "path": "notes/context.md",
+          "content": "# Context\n\nDelta across signals.\n",
+          "bytes": 32,
+          "mime": "text/markdown"
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "resolved"
+          }
+        }
+      },
+      {
+        "id": "fw-create-pending",
+        "intent": {
+          "type": "file_write",
+          "path": "notes/audit.md",
+          "op": "create",
+          "title": "Audit report"
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "pending"
+          }
+        }
+      },
+      {
+        "id": "fw-create-resolved",
+        "intent": {
+          "type": "file_write",
+          "path": "notes/audit.md",
+          "op": "create",
+          "content": "# Audit\n\n- weak closure: unit 203\n- follow-up: HVAC check\n",
+          "bytes": 54,
+          "title": "Audit report",
+          "mime": "text/markdown"
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "resolved"
+          }
+        }
+      },
+      {
+        "id": "fw-write",
+        "intent": {
+          "type": "file_write",
+          "path": "notes/audit.md",
+          "op": "write",
+          "content": "updated",
+          "bytes": 7
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "resolved"
+          }
+        }
+      },
+      {
+        "id": "fw-append",
+        "intent": {
+          "type": "file_write",
+          "path": "log.txt",
+          "op": "append",
+          "content": "entry\n",
+          "bytes": 6
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "resolved"
+          }
+        }
+      },
+      {
+        "id": "fw-delete",
+        "intent": {
+          "type": "file_write",
+          "path": "stale.tmp",
+          "op": "delete"
+        },
+        "children": [],
+        "bindings": [],
+        "actions": [],
+        "attrs": {},
+        "lifecycle": {
+          "created_at": "2026-04-23T14:08:43.263046Z",
+          "priority": "normal",
+          "status": {
+            "kind": "resolved"
+          }
+        }
+      }
+    ],
+    "bindings": [],
+    "actions": [],
+    "attrs": {},
+    "lifecycle": {
+      "created_at": "2026-04-23T14:08:43.263046Z",
+      "priority": "normal",
+      "status": {
+        "kind": "active"
+      }
+    }
+  },
+  "signals": {},
+  "hints": {
+    "preferred_surfaces": [],
+    "intent_profile": "dense_technical",
+    "locale": "en-US",
+    "density": "comfortable"
+  }
+}
