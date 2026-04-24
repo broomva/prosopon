@@ -1,0 +1,24 @@
+---
+source: crates/prosopon-compositor-text/tests/goldens.rs
+expression: out
+---
+File flow
+─────────
+  … READ  notes/context.md (reading…)
+  ✓ READ  notes/context.md (32 B)
+    # Context
+    
+    Delta across signals.
+  … CREATE notes/audit.md (writing…)
+    Audit report
+  ✓ CREATE notes/audit.md (54 B)
+    Audit report
+    # Audit
+    
+    - weak closure: unit 203
+    …
+  ✓ WRITE  notes/audit.md (7 B)
+    updated
+  ✓ APPEND log.txt (6 B)
+    entry
+  ✓ DELETE stale.tmp
