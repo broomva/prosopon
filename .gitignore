@@ -3,6 +3,13 @@
 **/*.rs.bk
 Cargo.lock
 
+# Node / Bun / Turbo (the repo is also a Turborepo — see ./package.json)
+node_modules/
+.turbo/
+packages/*/dist/
+packages/*/.turbo/
+packages/*/*.tsbuildinfo
+
 # Editor / IDE
 .idea/
 .vscode/
