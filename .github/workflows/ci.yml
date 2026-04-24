@@ -63,3 +63,53 @@ jobs:
         with:
           name: prosopon-schemas
           path: schemas/
+
+  js:
+    name: TS bindings (@broomva/prosopon)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.3
+      - name: Install deps
+        run: bun install --frozen-lockfile
+      - name: Typecheck
+        run: bun run --cwd packages/prosopon-ts typecheck
+      - name: Test
+        run: bun run --cwd packages/prosopon-ts test
+      - name: Build
+        run: bun run --cwd packages/prosopon-ts build
+      - name: Verify tarball shape
+        run: |
+          cd packages/prosopon-ts
+          npm pack --dry-run
+
+  schema-parity:
+    name: TS bindings stay in sync with Rust schemas
+    runs-on: ubuntu-latest
+    needs: [check]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.3
+      - name: Install JS deps
+        run: bun install --frozen-lockfile
+      - name: Regenerate committed schema snapshots
+        run: |
+          cargo run -p prosopon-cli --quiet -- schema scene > packages/prosopon-ts/src/generated/scene.json
+          cargo run -p prosopon-cli --quiet -- schema event > packages/prosopon-ts/src/generated/event.json
+      - name: Regenerate types.ts
+        run: bun run --cwd packages/prosopon-ts generate
+      - name: Fail if bindings drifted from source of truth
+        run: |
+          if ! git diff --quiet packages/prosopon-ts/src/generated/; then
+            echo "::error::packages/prosopon-ts/src/generated/ is out of date — run 'cargo run -p prosopon-cli -- schema {scene,event}' + 'bun run --cwd packages/prosopon-ts generate' locally and commit."
+            git --no-pager diff packages/prosopon-ts/src/generated/
+            exit 1
+          fi
