@@ -9,6 +9,7 @@ node_modules/
 packages/*/dist/
 packages/*/.turbo/
 packages/*/*.tsbuildinfo
+packages/*/*.tgz
 
 # Editor / IDE
 .idea/
