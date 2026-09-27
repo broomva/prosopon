@@ -53,8 +53,8 @@ FileRead {
     /// `content.len()` if absent but the emitter knows it authoritatively.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     bytes: Option<u64>,
-    /// MIME type hint. Enables syntax highlighting, preview mode switching,
-    /// etc. SHOULD default to `text/plain` when the reader doesn't know.
+    /// MIME type hint. Enables syntax highlighting and preview-mode
+    /// switching. Compositors SHOULD assume `text/plain` when absent.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     mime: Option<String>,
 },
@@ -109,9 +109,16 @@ pub enum FileWriteKind {
 }
 ```
 
-Placement in `intent.rs`: immediately after `ToolResult`, grouped with
-Process. Filesystem operations are a specialization of process-effects on
-persistent state.
+Placement in `intent.rs`: after `Progress`, under its own `Filesystem`
+heading. RFC-0001's category table lists both variants in the Process row, since
+filesystem operations are a specialization of process-effects on persistent state.
+
+Normative rules the implementation carries (`crates/prosopon-core/src/intent.rs`):
+
+- `FileWriteKind::Create` — the write MUST fail if the file already exists.
+- `FileWriteKind::Delete` — `content` SHOULD be absent.
+- Lifecycle: `NodeAdded` with `content: None` is `pending`; the resolving
+  `NodeUpdated` patch is `resolved` on success and **`failed` on error**.
 
 ## Design rationale
 
@@ -164,20 +171,22 @@ Life, where `fs_op` events are already a distinct RunEvent type).
 The reference text compositor (`prosopon-compositor-text`) renders the new
 variants as:
 
-```
-FileRead   → "READ  <path>" + content preview (first 3 lines) when resolved
-FileWrite  → "<OP>  <path>" where <OP> ∈ {CREATE, WRITE, APPEND, DELETE},
-             + title on the next line if present,
-             + content preview (first 3 lines) when resolved,
-             + "(<bytes> B)" trailing byte count
-```
-
-Placeholder rendering in pending state:
+Header line, then an optional title and a preview:
 
 ```
-FileRead   → "READ  <path>  (reading…)"
-FileWrite  → "<OP>  <path>  (writing…)"
+FileRead   → "READ  <path>[ (<bytes> B)][ (reading…)]"
+FileWrite  → "<OP> <path>[ (<bytes> B)][ (writing…)]"
+             <OP> ∈ {CREATE, WRITE, APPEND, DELETE}; an unknown future kind
+             renders as "WRITE?" so the node stays visible
+             + title on the next line, if present (FileWrite only)
++ content preview: first 3 lines, then "…" if there are more
 ```
+
+The byte count sits on the header line. `(reading…)` / `(writing…)` shows while
+`content` is absent. A `DELETE` never shows `(writing…)`. The golden snapshot
+`crates/prosopon-compositor-text/tests/goldens.rs::file_flow_snapshot` pins this
+format against the shared fixture
+`crates/prosopon-compositor-glass/web/tests/fixtures/file_flow.json`.
 
 ## Emitter migration path (broomva.tech)
 
@@ -205,19 +214,24 @@ The Preview pane reads `FileWrite.content` directly instead of reaching into
 
 ## Compatibility
 
-**Additive change.** `Intent` is `#[non_exhaustive]`, so adding two variants is
-non-breaking for consumers that already handle `_` in a match arm. Older
-consumers that don't yet know `FileRead` / `FileWrite` render them via the
-`Intent` `Display` fallback (same behaviour as any unknown future variant).
+**Source-additive, not wire-compatible for old readers.** `Intent` is
+`#[non_exhaustive]`, so adding two variants is non-breaking at the *source* level
+for Rust consumers that already handle `_` in a match arm.
 
-No schema break:
+On the wire, a peer built before `0.2.0` does **not** degrade gracefully.
+`Intent` has no `#[serde(other)]` catch-all and no `Display` fallback, so
+deserializing `{"type":"file_write",…}` with a pre-0.2.0 build fails with
+`unknown variant \`file_write\``. The event is rejected, not rendered
+generically. Emitters must not send these variants to a reader that predates
+`IR_SCHEMA_VERSION` `0.2.0`.
 
-- `IR_SCHEMA_VERSION` bumps `0.1.0` → `0.2.0` (minor — additive).
-- `prosopon-protocol::PROTOCOL_VERSION` stays at `1` (wire format unchanged
-  — new Intent types serialize under the same `type`-tagged enum).
-- `prosopon-core::scene_schema_json()` + `event_schema_json()` automatically
-  emit the new variants via `schemars`; TypeScript bindings
-  (`@broomva/prosopon`) regenerate in the same PR.
+- `IR_SCHEMA_VERSION` bumped `0.1.0` → `0.2.0` (`crates/prosopon-core/src/lib.rs`).
+- `prosopon-protocol::PROTOCOL_VERSION` stays at `1`. The envelope is unchanged;
+  the new Intent types serialize under the same `type`-tagged enum, subject to
+  the reader-version caveat above.
+- `prosopon-core::scene_schema_json()` + `event_schema_json()` emit the new
+  variants via `schemars`. The TypeScript bindings were regenerated in #6, not
+  in #5.
 
 ## Well-known attribute keys
 
@@ -236,17 +250,19 @@ pattern crystallizes.
 
 ## Implementation checklist
 
-- [ ] Add `FileRead`, `FileWrite`, `FileWriteKind` to `crates/prosopon-core/src/intent.rs`.
-- [ ] Serde round-trip test for each variant (pending + resolved states).
-- [ ] `crates/prosopon-compositor-text/src/render.rs::render_intent` handles both.
-- [ ] Golden-file fixture under `crates/prosopon-compositor-text/tests/fixtures/` for a write-then-resolve sequence.
-- [ ] SDK helper in `crates/prosopon-sdk/src/ir.rs` for the common shape:
-      `ir::file_write(path, op, content)`, `ir::file_read(path)`.
-- [ ] Bump `prosopon_core::IR_SCHEMA_VERSION` to `"0.2.0"` in `lib.rs`.
-- [ ] `cargo run -p prosopon-cli -- schema scene > schemas/scene.json` +
-      `schema event > schemas/event.json` regenerated and committed.
-- [ ] `@broomva/prosopon` TS bindings regenerated via `bun run generate:types`.
-- [ ] Update RFC-0001 "Process" row to include `FileRead`, `FileWrite`.
+Landed in #5 (`7a42925`) unless noted.
+
+- [x] `FileRead`, `FileWrite`, `FileWriteKind` in `crates/prosopon-core/src/intent.rs`.
+- [x] Serde round-trip tests (pending + resolved; every `FileWriteKind`), `intent.rs` tests module.
+- [x] `crates/prosopon-compositor-text/src/render.rs::render_intent` handles both.
+- [x] Golden snapshot `crates/prosopon-compositor-text/tests/goldens.rs::file_flow_snapshot`, fixture shared at `crates/prosopon-compositor-glass/web/tests/fixtures/file_flow.json`.
+- [x] SDK helpers in `crates/prosopon-sdk/src/ir.rs`: `ir::file_read(path)` and
+      `ir::file_write(path, op)`. Content is set on the returned `NodeBuilder`, not passed positionally.
+- [x] `prosopon_core::IR_SCHEMA_VERSION` = `"0.2.0"` in `lib.rs`.
+- [x] Schemas regenerated into `packages/prosopon-ts/src/generated/{scene,event}.json`
+      via `cargo run -p prosopon-cli -- schema scene|event` (in #6).
+- [x] `@broomva/prosopon` TS bindings regenerated via `bun run generate` in `packages/prosopon-ts` (in #6).
+- [x] RFC-0001 "Process" row lists `FileRead`, `FileWrite`.
 
 ## Follow-up (separate PR after this one lands)
 
