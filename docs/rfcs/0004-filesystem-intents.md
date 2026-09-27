@@ -18,9 +18,9 @@ path + content + byte count. That works, but:
 - **No discoverability.** A compositor that doesn't know `"fs.op"` falls back
   to generic-payload rendering, losing the semantics a file operation carries
   (a path is clickable; a diff is renderable; bytes are human-formattable).
-- **Every consumer invents its own payload shape.** The Life page's current
-  emitter uses `{ path, op, content, title, bytes }` keys inside
-  `Custom.payload`. Any second consumer (Mission Control, Prompter, a future
+- **Every consumer invents its own payload shape.** The Life page's emitter,
+  as of this RFC's drafting, used `{ path, op, content, title, bytes }` keys inside
+  `Custom.payload` (since migrated — see *Emitter migration*). Any second consumer (Mission Control, Prompter, a future
   IDE skin) has to mirror that shape exactly or do its own translation.
 - **Lifecycle semantics don't line up.** A write-in-progress looks like any
   other pending `Custom` node; a completed write can't be distinguished from
@@ -64,7 +64,7 @@ FileRead {
 /// 2. Optional `StreamChunk`s into a paired stream if the content is itself
 ///    a live stream (rare; most writes are atomic).
 /// 3. `NodeUpdated` patching `content` + `bytes` when the write lands.
-///    Lifecycle resolved.
+///    Lifecycle resolved on success, failed on error.
 FileWrite {
     path: String,
     /// The kind of write — `create` for new files, `write` for overwrite,
@@ -98,7 +98,7 @@ And the supporting enum:
 #[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 pub enum FileWriteKind {
-    /// New file at `path`.
+    /// New file at `path`. The write MUST fail if the file already exists.
     Create,
     /// Overwrite an existing file at `path`.
     Write,
@@ -153,7 +153,7 @@ Most writes are atomic from the agent's perspective — the LLM produces the
 full note, the runtime calls the filesystem once. For the rare case of
 stream-into-file (log tailing, large exports), the agent can pair
 `FileWrite { content: None }` with a `Stream` intent under the same parent
-node; the compositor reads the stream and updates the FileWrite on final.
+node; the emitter patches `FileWrite.content` when the stream completes.
 Adding a streaming mode to `FileWrite` itself would duplicate the `Stream`
 variant without adding capability.
 
@@ -188,29 +188,18 @@ The byte count sits on the header line. `(reading…)` / `(writing…)` shows wh
 format against the shared fixture
 `crates/prosopon-compositor-glass/web/tests/fixtures/file_flow.json`.
 
-## Emitter migration path (broomva.tech)
+## Emitter migration (broomva.tech) — done
 
-The Life page's `ProsoponEmitter` in `apps/chat/lib/life-runtime/prosopon-emitter.ts`
-currently emits `fs_op` as:
+When this RFC was drafted, the Life page's `ProsoponEmitter` emitted `fs_op` as
+`Intent::Custom { kind: "fs.op", payload: { path, op, content, title, bytes } }`.
 
-```ts
-Intent::Custom { kind: "fs.op", payload: { path, op, content, title, bytes } }
-```
+That migration has landed: https://github.com/broomva/broomva.tech/pull/109 (`6da409c`, 2026-04-24,
+"consume RFC-0004 typed filesystem intents end-to-end").
 
-Migration (lands in a follow-up PR after this RFC is accepted and implemented):
-
-```ts
-// Reads
-Intent::FileRead { path, content, bytes, mime }
-
-// Writes — op narrowed to FileWriteKind
-Intent::FileWrite { path, op: FileWriteKind, content, title, bytes, mime }
-```
-
-`EnvelopeAdapter` on the client side narrows `node_added` with
-`Intent::FileWrite` → `ReplayEvent { kind: "fs-op", op: "write" | "create" | "append" | "delete" }`.
-The Preview pane reads `FileWrite.content` directly instead of reaching into
-`Custom.payload.content`.
+- The emitter, now at `apps/broomva/lib/life-runtime/prosopon-emitter.ts`, emits
+  `type: "file_read"` / `"file_write"` for each `fs_op`.
+- `apps/broomva/app/(site)/life/_lib/envelope-adapter.ts` has `file_read` /
+  `file_write` branches that narrow into the reducer's `fs-op` `ReplayEvent`.
 
 ## Compatibility
 
@@ -257,19 +246,21 @@ Landed in #5 (`7a42925`) unless noted.
 - [x] `crates/prosopon-compositor-text/src/render.rs::render_intent` handles both.
 - [x] Golden snapshot `crates/prosopon-compositor-text/tests/goldens.rs::file_flow_snapshot`, fixture shared at `crates/prosopon-compositor-glass/web/tests/fixtures/file_flow.json`.
 - [x] SDK helpers in `crates/prosopon-sdk/src/ir.rs`: `ir::file_read(path)` and
-      `ir::file_write(path, op)`. Content is set on the returned `NodeBuilder`, not passed positionally.
+      `ir::file_write(path, op)`. `NodeBuilder` has **no** content/bytes/mime setter.
+      To emit a resolved node, construct `Intent::FileWrite { .. }` directly, or use
+      `NodeBuilder::from_node`. (The `ir.rs` doc comment that advertises
+      `.bytes/.mime/.content` methods is wrong; that is a code-side follow-up, not
+      part of this RFC.)
 - [x] `prosopon_core::IR_SCHEMA_VERSION` = `"0.2.0"` in `lib.rs`.
 - [x] Schemas regenerated into `packages/prosopon-ts/src/generated/{scene,event}.json`
       via `cargo run -p prosopon-cli -- schema scene|event` (in #6).
 - [x] `@broomva/prosopon` TS bindings regenerated via `bun run generate` in `packages/prosopon-ts` (in #6).
 - [x] RFC-0001 "Process" row lists `FileRead`, `FileWrite`.
 
-## Follow-up (separate PR after this one lands)
+## Follow-up
 
-- `broomva.tech` emitter migration in `prosopon-emitter.ts` — swap
-  `Custom { kind: "fs.op" }` → typed variants.
-- `EnvelopeAdapter` branch for `node_added.intent.type === "file_write" | "file_read"`.
-- `PreviewPane` reads `FileWrite.content` / `FileRead.content` directly.
+The broomva.tech consumer follow-ups (emitter swap, `EnvelopeAdapter` branches)
+landed in https://github.com/broomva/broomva.tech/pull/109 — see *Emitter migration*.
 
 ## Open questions (deferred)
 
