@@ -58,6 +58,7 @@ for env in session.scene_reset_stream(scene) {
 - [**RFC-0001 — IR schema**](docs/rfcs/0001-ir-schema.md) — Node / Intent / Scene / ProsoponEvent, design axioms.
 - [**RFC-0002 — Compositor contract**](docs/rfcs/0002-compositor-contract.md) — the trait, capabilities, error contract, lifecycle.
 - [**RFC-0003 — Pneuma binding**](docs/rfcs/0003-pneuma-binding.md) — how prosopon becomes `Pneuma<L0ToExternal>` in the Life Agent OS.
+- [**RFC-0004 — Filesystem intents**](docs/rfcs/0004-filesystem-intents.md) — `Intent::FileRead` / `Intent::FileWrite`, promoted out of `Custom { kind: "fs.op" }`.
 - [**Surface notes**](docs/surfaces/) — per-surface design notes (text, glass, field, spatial, audio).
 
 ## Design axioms

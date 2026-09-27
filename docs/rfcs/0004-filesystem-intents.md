@@ -1,6 +1,6 @@
 # RFC-0004 — Filesystem Intents
 
-- **Status:** Draft
+- **Status:** Accepted — implemented in #5 (`7a42925`, `Intent::FileRead` / `Intent::FileWrite` in `crates/prosopon-core/src/intent.rs`)
 - **Owns:** `prosopon-core`
 - **Depends on:** RFC-0001 (IR Schema)
 - **First consumer:** `broomva.tech/life/[project]` — FileTree + Preview panes
