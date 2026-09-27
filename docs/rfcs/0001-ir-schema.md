@@ -81,7 +81,7 @@ multiple variants carry a natural `kind` field such as
 | Entity | `EntityRef`, `Link`, `Citation` |
 | Live state | `Signal`, `Stream` |
 | Decision surface | `Choice`, `Confirm`, `Input` |
-| Process | `ToolCall`, `ToolResult`, `Progress` |
+| Process | `ToolCall`, `ToolResult`, `Progress`, `FileRead`, `FileWrite` (RFC-0004) |
 | Structural | `Group { layout }`, `Section`, `Divider` |
 | Spatial | `Field`, `Locus`, `Formation` |
 | Media | `Image`, `Audio`, `Video` |

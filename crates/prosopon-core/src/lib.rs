@@ -73,8 +73,8 @@ pub mod prelude {
     pub use crate::event::{ChunkPayload, ProsoponEvent, StreamChunk};
     pub use crate::ids::{ActionId, NodeId, SceneId, StreamId, Topic};
     pub use crate::intent::{
-        ChoiceOption, FormationKind, GroupKind, InputKind, Intent, Projection, SignalDisplay,
-        SpatialFrame, StreamKind,
+        ChoiceOption, FileWriteKind, FormationKind, GroupKind, InputKind, Intent, Projection,
+        SignalDisplay, SpatialFrame, StreamKind,
     };
     pub use crate::lifecycle::{Lifecycle, NodeStatus, Priority, Severity};
     pub use crate::node::{ChildrenPatch, Node, NodePatch};
@@ -86,7 +86,10 @@ pub mod prelude {
 pub use prelude::*;
 
 /// Semantic version string of the IR schema. Bump on any wire-incompatible change.
-pub const IR_SCHEMA_VERSION: &str = "0.1.0";
+///
+/// `0.2.0` — additive: `Intent::FileRead`, `Intent::FileWrite`, `FileWriteKind`
+/// added (RFC-0004). Existing consumers continue to work unchanged.
+pub const IR_SCHEMA_VERSION: &str = "0.2.0";
 
 /// Emit the JSON Schema for the top-level `Scene` type, as a JSON string.
 ///

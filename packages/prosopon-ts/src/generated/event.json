@@ -1,0 +1,2425 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProsoponEvent",
+  "description": "A single event in the Prosopon stream.",
+  "oneOf": [
+    {
+      "description": "Full scene reset. Compositors SHOULD clear state and re-render.",
+      "type": "object",
+      "required": [
+        "scene",
+        "type"
+      ],
+      "properties": {
+        "scene": {
+          "$ref": "#/definitions/Scene"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "scene_reset"
+          ]
+        }
+      }
+    },
+    {
+      "description": "New node attached under a parent. If the parent does not exist, compositors MAY buffer or drop; implementations SHOULD log.",
+      "type": "object",
+      "required": [
+        "node",
+        "parent",
+        "type"
+      ],
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/Node"
+        },
+        "parent": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "node_added"
+          ]
+        }
+      }
+    },
+    {
+      "description": "Incremental patch to an existing node.",
+      "type": "object",
+      "required": [
+        "id",
+        "patch",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "patch": {
+          "$ref": "#/definitions/NodePatch"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "node_updated"
+          ]
+        }
+      }
+    },
+    {
+      "description": "Remove a node and its subtree.",
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "node_removed"
+          ]
+        }
+      }
+    },
+    {
+      "description": "A signal's current value changed.",
+      "type": "object",
+      "required": [
+        "topic",
+        "ts",
+        "type",
+        "value"
+      ],
+      "properties": {
+        "topic": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "signal_changed"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/SignalValue"
+        }
+      }
+    },
+    {
+      "description": "A chunk of streaming output for a `Stream` intent.",
+      "type": "object",
+      "required": [
+        "chunk",
+        "id",
+        "type"
+      ],
+      "properties": {
+        "chunk": {
+          "$ref": "#/definitions/StreamChunk"
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "stream_chunk"
+          ]
+        }
+      }
+    },
+    {
+      "description": "The user (via a compositor) invoked an action slot. Flow direction: compositor -> agent.",
+      "type": "object",
+      "required": [
+        "kind",
+        "slot",
+        "source",
+        "type"
+      ],
+      "properties": {
+        "kind": {
+          "$ref": "#/definitions/ActionKind"
+        },
+        "slot": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "action_emitted"
+          ]
+        }
+      }
+    },
+    {
+      "description": "Periodic liveness. Compositors MAY use this for \"last-heard-from\" timeouts.",
+      "type": "object",
+      "required": [
+        "ts",
+        "type"
+      ],
+      "properties": {
+        "ts": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "heartbeat"
+          ]
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "ActionKind": {
+      "description": "What the action *means*. Compositors choose representation; agents react by semantics.",
+      "oneOf": [
+        {
+          "description": "Submit a payload back to the agent — the most generic action.",
+          "type": "object",
+          "required": [
+            "kind",
+            "payload"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "submit"
+              ]
+            },
+            "payload": true
+          }
+        },
+        {
+          "description": "Request the agent inspect another node (drill-down, \"tell me more\").",
+          "type": "object",
+          "required": [
+            "kind",
+            "target"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "inspect"
+              ]
+            },
+            "target": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Move focus to another node without side effects.",
+          "type": "object",
+          "required": [
+            "kind",
+            "target"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "focus"
+              ]
+            },
+            "target": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Invoke a named command on the agent (e.g. \"rerun\", \"cancel\").",
+          "type": "object",
+          "required": [
+            "command",
+            "kind"
+          ],
+          "properties": {
+            "args": {
+              "default": null
+            },
+            "command": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "invoke"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Record human feedback on a result — thumb-up/down plus optional comment.",
+          "type": "object",
+          "required": [
+            "kind",
+            "valence"
+          ],
+          "properties": {
+            "comment": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "feedback"
+              ]
+            },
+            "valence": {
+              "$ref": "#/definitions/Valence"
+            }
+          }
+        },
+        {
+          "description": "Pick one of the options declared by a `Choice` intent.",
+          "type": "object",
+          "required": [
+            "kind",
+            "option_id"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "choose"
+              ]
+            },
+            "option_id": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Fill an `Input` intent's value.",
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "input"
+              ]
+            },
+            "value": true
+          }
+        },
+        {
+          "description": "Confirm a `Confirm` intent.",
+          "type": "object",
+          "required": [
+            "accepted",
+            "kind"
+          ],
+          "properties": {
+            "accepted": {
+              "type": "boolean"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "confirm"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ActionSlot": {
+      "description": "An interactive slot attached to a node.\n\nSlots are *declarative* — the node says \"this action is available,\" the compositor decides how to present it (button, keybind, voice command, gesture), and the agent reacts to the emitted `ActionEvent`.",
+      "type": "object",
+      "required": [
+        "id",
+        "kind"
+      ],
+      "properties": {
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/definitions/ActionKind"
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "visibility": {
+          "default": "visible",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Visibility"
+            }
+          ]
+        }
+      }
+    },
+    "BindTarget": {
+      "description": "What part of a node a binding updates.",
+      "oneOf": [
+        {
+          "description": "Update a named attribute on the node (e.g. `\"pct\"`, `\"label\"`).",
+          "type": "object",
+          "required": [
+            "key",
+            "kind"
+          ],
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "attr"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Update a named slot inside the node's `Intent` payload (e.g. `\"progress.pct\"`).",
+          "type": "object",
+          "required": [
+            "kind",
+            "path"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "intent_slot"
+              ]
+            },
+            "path": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Replace the content of a child node entirely.",
+          "type": "object",
+          "required": [
+            "id",
+            "kind"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "child_content"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Binding": {
+      "description": "Binds a live signal to a rendering slot on a node.\n\nThe compositor is responsible for subscribing to the signal and applying the (optional) transform before updating the target.",
+      "type": "object",
+      "required": [
+        "source",
+        "target"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/SignalRef"
+        },
+        "target": {
+          "$ref": "#/definitions/BindTarget"
+        },
+        "transform": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Transform"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ChildrenPatch": {
+      "description": "How a patch modifies a node's children.",
+      "oneOf": [
+        {
+          "description": "Replace the entire children list.",
+          "type": "object",
+          "required": [
+            "children",
+            "op"
+          ],
+          "properties": {
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Node"
+              }
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "replace"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Append new children to the end.",
+          "type": "object",
+          "required": [
+            "children",
+            "op"
+          ],
+          "properties": {
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Node"
+              }
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "append"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Remove children by id.",
+          "type": "object",
+          "required": [
+            "ids",
+            "op"
+          ],
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "remove"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Reorder children to match `order`. Any ids not present are dropped.",
+          "type": "object",
+          "required": [
+            "op",
+            "order"
+          ],
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "reorder"
+              ]
+            },
+            "order": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ChoiceOption": {
+      "description": "One of the options presented by a `Choice` intent.",
+      "type": "object",
+      "required": [
+        "id",
+        "label"
+      ],
+      "properties": {
+        "default": {
+          "default": false,
+          "type": "boolean"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "description": "Stable identifier used in the corresponding `ActionKind::Choose`.",
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "ChunkPayload": {
+      "description": "Payload variants carried in a stream chunk.",
+      "oneOf": [
+        {
+          "description": "UTF-8 text fragment — append to the rendered stream.",
+          "type": "object",
+          "required": [
+            "encoding",
+            "text"
+          ],
+          "properties": {
+            "encoding": {
+              "type": "string",
+              "enum": [
+                "text"
+              ]
+            },
+            "text": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Base64-encoded bytes (audio frames, binary data).",
+          "type": "object",
+          "required": [
+            "data",
+            "encoding"
+          ],
+          "properties": {
+            "data": {
+              "type": "string"
+            },
+            "encoding": {
+              "type": "string",
+              "enum": [
+                "b64"
+              ]
+            },
+            "mime": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A JSON value — for JSONL streams.",
+          "type": "object",
+          "required": [
+            "encoding",
+            "value"
+          ],
+          "properties": {
+            "encoding": {
+              "type": "string",
+              "enum": [
+                "json"
+              ]
+            },
+            "value": true
+          }
+        }
+      ]
+    },
+    "Density": {
+      "description": "Visual density preference. Compositors interpret this per-surface.",
+      "type": "string",
+      "enum": [
+        "compact",
+        "comfortable",
+        "spacious"
+      ]
+    },
+    "FileWriteKind": {
+      "description": "What kind of filesystem write a `FileWrite` intent represents.\n\n`#[non_exhaustive]` so future variants (e.g. `Patch` for diff-based writes) land additively.",
+      "oneOf": [
+        {
+          "description": "New file at `path`. The write MUST fail if the file already exists.",
+          "type": "string",
+          "enum": [
+            "create"
+          ]
+        },
+        {
+          "description": "Overwrite an existing file at `path`. Compositors MAY render as a `mod`/`modified` badge.",
+          "type": "string",
+          "enum": [
+            "write"
+          ]
+        },
+        {
+          "description": "Append content to the end of an existing file.",
+          "type": "string",
+          "enum": [
+            "append"
+          ]
+        },
+        {
+          "description": "Remove the file at `path`. `content` SHOULD be absent.",
+          "type": "string",
+          "enum": [
+            "delete"
+          ]
+        }
+      ]
+    },
+    "FormationKind": {
+      "description": "A coherent grouping of agents — renders as a cluster, swarm, or quorum.",
+      "oneOf": [
+        {
+          "description": "Threshold-reached consensus.",
+          "type": "string",
+          "enum": [
+            "quorum"
+          ]
+        },
+        {
+          "description": "Moving coordinated group.",
+          "type": "string",
+          "enum": [
+            "swarm"
+          ]
+        },
+        {
+          "description": "Static ring, line, or geometric arrangement.",
+          "type": "string",
+          "enum": [
+            "geometric"
+          ]
+        },
+        {
+          "description": "Leftover scent traces (stigmergic).",
+          "type": "string",
+          "enum": [
+            "stigmergy"
+          ]
+        }
+      ]
+    },
+    "GroupKind": {
+      "description": "How a `Group` lays out its children.",
+      "oneOf": [
+        {
+          "description": "Top-to-bottom list.",
+          "type": "string",
+          "enum": [
+            "list"
+          ]
+        },
+        {
+          "description": "Gridded layout — compositors decide column count.",
+          "type": "string",
+          "enum": [
+            "grid"
+          ]
+        },
+        {
+          "description": "Strictly ordered sequence — render as a process or timeline.",
+          "type": "string",
+          "enum": [
+            "sequence"
+          ]
+        },
+        {
+          "description": "Concurrent/parallel items — render side-by-side or overlapped.",
+          "type": "string",
+          "enum": [
+            "parallel"
+          ]
+        },
+        {
+          "description": "A stack — only the top child is fully visible.",
+          "type": "string",
+          "enum": [
+            "stack"
+          ]
+        }
+      ]
+    },
+    "InputKind": {
+      "description": "Shape of an `Input` intent.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "text"
+              ]
+            },
+            "multiline": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "number"
+              ]
+            },
+            "max": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "format": "double"
+            },
+            "min": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "format": "double"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "boolean"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "date"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "json"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Intent": {
+      "description": "The semantic type of a node.\n\nSee module docs for the design philosophy. Compositors SHOULD handle every variant gracefully; falling back to rendering via `Intent::Prose` of the variant's `Display` is acceptable when no better representation is available.",
+      "oneOf": [
+        {
+          "description": "Plain semantic prose. Inline markup is NOT interpreted — compositors format according to the surrounding node's attributes.",
+          "type": "object",
+          "required": [
+            "text",
+            "type"
+          ],
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "prose"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Source code in a named language. Compositors MAY syntax-highlight.",
+          "type": "object",
+          "required": [
+            "lang",
+            "source",
+            "type"
+          ],
+          "properties": {
+            "lang": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "code"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Mathematical expression in LaTeX or MathML. Optional; text compositors fall back to raw source.",
+          "type": "object",
+          "required": [
+            "source",
+            "type"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "math"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A pointer to a known entity in the agent's knowledge graph. Compositors MAY render as a clickable reference.",
+          "type": "object",
+          "required": [
+            "id",
+            "kind",
+            "type"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "entity_ref"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A hyperlink to an external resource.",
+          "type": "object",
+          "required": [
+            "href",
+            "type"
+          ],
+          "properties": {
+            "href": {
+              "type": "string"
+            },
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "link"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A citation reference — source + optional anchor/page.",
+          "type": "object",
+          "required": [
+            "source",
+            "type"
+          ],
+          "properties": {
+            "anchor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "source": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "citation"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Displays the current value of a reactive signal.",
+          "type": "object",
+          "required": [
+            "topic",
+            "type"
+          ],
+          "properties": {
+            "display": {
+              "default": "inline",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/SignalDisplay"
+                }
+              ]
+            },
+            "topic": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "signal"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A streaming output channel (token stream, audio stream, etc.).",
+          "type": "object",
+          "required": [
+            "id",
+            "kind",
+            "type"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "$ref": "#/definitions/StreamKind"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "stream"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Present a choice between mutually exclusive options.",
+          "type": "object",
+          "required": [
+            "options",
+            "prompt",
+            "type"
+          ],
+          "properties": {
+            "options": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ChoiceOption"
+              }
+            },
+            "prompt": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "choice"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Request yes/no confirmation before the agent proceeds.",
+          "type": "object",
+          "required": [
+            "message",
+            "type"
+          ],
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "severity": {
+              "default": "notice",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Severity"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "confirm"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Request typed input from the human.",
+          "type": "object",
+          "required": [
+            "input",
+            "prompt",
+            "type"
+          ],
+          "properties": {
+            "default": true,
+            "input": {
+              "$ref": "#/definitions/InputKind"
+            },
+            "prompt": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "input"
+              ]
+            }
+          }
+        },
+        {
+          "description": "An in-flight or completed tool invocation.",
+          "type": "object",
+          "required": [
+            "args",
+            "name",
+            "type"
+          ],
+          "properties": {
+            "args": true,
+            "name": {
+              "type": "string"
+            },
+            "stream": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "tool_call"
+              ]
+            }
+          }
+        },
+        {
+          "description": "The outcome of a tool call.",
+          "type": "object",
+          "required": [
+            "payload",
+            "success",
+            "type"
+          ],
+          "properties": {
+            "payload": true,
+            "success": {
+              "type": "boolean"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "tool_result"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Bounded progress — optional percentage + optional label.",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "pct": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "format": "float"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "progress"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A filesystem read. The `content` slot fills in when the read completes.\n\nLifecycle — mirrors the `ToolCall` pattern: - `NodeAdded` with `content: None` when the agent decides to read. Paired lifecycle status `pending`. - `NodeUpdated { patch: { intent: FileRead { content: Some(...) } } }` when the content lands. Lifecycle moves to `resolved`.\n\nFor very large reads the agent MAY pair this with a sibling `Stream` intent and populate `content` only on `StreamChunk { final_: true }`.",
+          "type": "object",
+          "required": [
+            "path",
+            "type"
+          ],
+          "properties": {
+            "bytes": {
+              "description": "Byte count. Compositors may compute from `content.len()` if the emitter doesn't supply it; supplying it authoritatively is preferred for multi-byte encodings.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "content": {
+              "description": "File content once the read completes. Absent while in-flight.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mime": {
+              "description": "MIME type hint — enables syntax highlighting and preview-mode switching. Compositors SHOULD assume `text/plain` when absent.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "path": {
+              "description": "Absolute or workspace-relative path. Compositors MAY render it as a clickable target. No scheme is implied; the emitter decides.",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "file_read"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A filesystem write. `op` narrows the kind of write (create / write / append / delete); `content` slots in when the write completes.\n\nLifecycle: 1. `NodeAdded` with `content: None` and `op` set. Lifecycle `pending`. 2. `NodeUpdated` patching `content` (and `bytes` if the emitter knows them) when the write resolves. Lifecycle `resolved` on success, `failed` on error.\n\nFor streamed writes, pair with a sibling `Stream` intent and patch `content` on stream completion.",
+          "type": "object",
+          "required": [
+            "op",
+            "path",
+            "type"
+          ],
+          "properties": {
+            "bytes": {
+              "description": "Byte count — authoritative when supplied, else derive from `content.len()`.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "content": {
+              "description": "The full body written. Absent until the write resolves. SHOULD be absent for `FileWriteKind::Delete`.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mime": {
+              "description": "MIME type hint, as in `FileRead`.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "op": {
+              "description": "The kind of write. Constrained via `FileWriteKind`.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/FileWriteKind"
+                }
+              ]
+            },
+            "path": {
+              "description": "Target path — see `FileRead::path`.",
+              "type": "string"
+            },
+            "title": {
+              "description": "Optional human-readable title the agent chose for this artifact. Useful when `path` is a synthetic workspace path and `title` is the user-facing name the compositor should surface.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "file_write"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A container whose `GroupKind` tells the compositor how to lay out children.",
+          "type": "object",
+          "required": [
+            "layout",
+            "type"
+          ],
+          "properties": {
+            "layout": {
+              "$ref": "#/definitions/GroupKind"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "group"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A named section — compositors MAY render a heading; children are the body.",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "collapsible": {
+              "default": false,
+              "type": "boolean"
+            },
+            "title": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "section"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A visual break between siblings.",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "divider"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A scalar or vector field, indexed by coordinate, projected for the chosen surface.",
+          "type": "object",
+          "required": [
+            "projection",
+            "topic",
+            "type"
+          ],
+          "properties": {
+            "projection": {
+              "$ref": "#/definitions/Projection"
+            },
+            "topic": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "field"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A named spatial anchor in the given frame of reference.",
+          "type": "object",
+          "required": [
+            "frame",
+            "position",
+            "type"
+          ],
+          "properties": {
+            "frame": {
+              "$ref": "#/definitions/SpatialFrame"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "format": "float"
+              },
+              "maxItems": 3,
+              "minItems": 3
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "locus"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A coherent arrangement of agents (quorum, swarm, formation).",
+          "type": "object",
+          "required": [
+            "kind",
+            "topic",
+            "type"
+          ],
+          "properties": {
+            "kind": {
+              "$ref": "#/definitions/FormationKind"
+            },
+            "topic": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "formation"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A bitmap or vector image.",
+          "type": "object",
+          "required": [
+            "type",
+            "uri"
+          ],
+          "properties": {
+            "alt": {
+              "default": "",
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "image"
+              ]
+            },
+            "uri": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "An audio source. Either a pre-rendered URI, a live stream, or a TTS voice.",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "stream": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "audio"
+              ]
+            },
+            "uri": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "voice": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        {
+          "description": "A video source.",
+          "type": "object",
+          "required": [
+            "type",
+            "uri"
+          ],
+          "properties": {
+            "poster": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "video"
+              ]
+            },
+            "uri": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Intentionally empty (useful as a container whose content will stream in).",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "empty"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Compositor-specific or experimental intents. Compositors that don't know `kind` SHOULD fall back to rendering a generic placeholder with the payload preview.",
+          "type": "object",
+          "required": [
+            "kind",
+            "payload",
+            "type"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string"
+            },
+            "payload": true,
+            "type": {
+              "type": "string",
+              "enum": [
+                "custom"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "IntentProfile": {
+      "description": "Overall presentation bias for a scene.",
+      "oneOf": [
+        {
+          "description": "Default — balanced density and ambience.",
+          "type": "string",
+          "enum": [
+            "balanced"
+          ]
+        },
+        {
+          "description": "Dense technical output — maximize information per unit surface.",
+          "type": "string",
+          "enum": [
+            "dense_technical"
+          ]
+        },
+        {
+          "description": "Ambient monitor — minimize intrusion, prefer peripheral rendering.",
+          "type": "string",
+          "enum": [
+            "ambient_monitor"
+          ]
+        },
+        {
+          "description": "Cinematic — long-form narrative, one idea per frame.",
+          "type": "string",
+          "enum": [
+            "cinematic"
+          ]
+        },
+        {
+          "description": "Conversational — paced for human back-and-forth.",
+          "type": "string",
+          "enum": [
+            "conversational"
+          ]
+        }
+      ]
+    },
+    "Lifecycle": {
+      "description": "Temporal and attentional state of a node.",
+      "type": "object",
+      "required": [
+        "created_at"
+      ],
+      "properties": {
+        "created_at": {
+          "description": "When this node was first emitted by the agent.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "description": "Optional expiration. Compositors SHOULD remove or fade past this time.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "priority": {
+          "description": "Attention priority — shapes placement, color, and notification behavior.",
+          "default": "normal",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Priority"
+            }
+          ]
+        },
+        "status": {
+          "description": "Current status in the node's lifecycle.",
+          "default": {
+            "kind": "active"
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/NodeStatus"
+            }
+          ]
+        }
+      }
+    },
+    "Node": {
+      "description": "A node in the Prosopon IR tree.",
+      "type": "object",
+      "required": [
+        "id",
+        "intent"
+      ],
+      "properties": {
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ActionSlot"
+          }
+        },
+        "attrs": {
+          "description": "Free-form attribute bag for hints the compositor MAY use. Well-known keys: `emphasis` (`\"low\" | \"normal\" | \"high\"`), `semantic_role` (e.g. `\"error\"`, `\"success\"`), `width_hint` (fraction 0..=1), `voice` (TTS voice id).",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Binding"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          }
+        },
+        "id": {
+          "type": "string"
+        },
+        "intent": {
+          "$ref": "#/definitions/Intent"
+        },
+        "lifecycle": {
+          "default": {
+            "created_at": "2026-04-24T01:17:55.305091Z",
+            "priority": "normal",
+            "status": {
+              "kind": "active"
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/Lifecycle"
+            }
+          ]
+        }
+      }
+    },
+    "NodePatch": {
+      "description": "An incremental update to a node — used by `ProsoponEvent::NodeUpdated`.\n\nAll fields are optional; unset fields leave existing values untouched.",
+      "type": "object",
+      "properties": {
+        "attrs": {
+          "description": "Attribute updates. `None` values remove the key.",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "children": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ChildrenPatch"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Intent"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lifecycle": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Lifecycle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "NodeStatus": {
+      "description": "Discrete lifecycle state of a node.",
+      "oneOf": [
+        {
+          "description": "Node is live and interactive.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "active"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Node is waiting on an upstream process (tool call, user response).",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Node's intent has been satisfied — useful for collapsing completed items.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "resolved"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Node failed — `reason` is human-readable and SHOULD be surfaced in the UI.",
+          "type": "object",
+          "required": [
+            "kind",
+            "reason"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "failed"
+              ]
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Node is fading out according to a decay curve (0.0 = fresh, 1.0 = gone).",
+          "type": "object",
+          "required": [
+            "kind",
+            "progress"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "decaying"
+              ]
+            },
+            "progress": {
+              "type": "number",
+              "format": "float"
+            }
+          }
+        }
+      ]
+    },
+    "Priority": {
+      "description": "Attention priority of a node.",
+      "oneOf": [
+        {
+          "description": "Background presence — persistent but non-demanding (e.g. a live metric).",
+          "type": "string",
+          "enum": [
+            "ambient"
+          ]
+        },
+        {
+          "description": "Default rendering priority.",
+          "type": "string",
+          "enum": [
+            "normal"
+          ]
+        },
+        {
+          "description": "Requires user attention soon but does not block other flows.",
+          "type": "string",
+          "enum": [
+            "urgent"
+          ]
+        },
+        {
+          "description": "Halts dependent flows until resolved (e.g. a destructive-action confirm).",
+          "type": "string",
+          "enum": [
+            "blocking"
+          ]
+        }
+      ]
+    },
+    "Projection": {
+      "description": "How a field is projected into the compositor's surface.",
+      "oneOf": [
+        {
+          "description": "Flat 2D heatmap.",
+          "type": "string",
+          "enum": [
+            "heatmap"
+          ]
+        },
+        {
+          "description": "Contour lines.",
+          "type": "string",
+          "enum": [
+            "contour"
+          ]
+        },
+        {
+          "description": "3D volume rendering — only honored by 3D compositors.",
+          "type": "string",
+          "enum": [
+            "volume"
+          ]
+        },
+        {
+          "description": "Reduced to a scalar summary (min/mean/max) by the compositor.",
+          "type": "string",
+          "enum": [
+            "summary"
+          ]
+        }
+      ]
+    },
+    "Scene": {
+      "description": "A complete snapshot of \"what to render.\"",
+      "type": "object",
+      "required": [
+        "id",
+        "root"
+      ],
+      "properties": {
+        "hints": {
+          "default": {
+            "density": "comfortable",
+            "intent_profile": "balanced"
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/SceneHints"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "root": {
+          "$ref": "#/definitions/Node"
+        },
+        "signals": {
+          "description": "Last-known value for each referenced signal topic. Compositors that support push-based updates MAY subscribe and ignore this cache; compositors that only pull SHOULD treat this as the authoritative initial value.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SignalValue"
+          }
+        }
+      }
+    },
+    "SceneHints": {
+      "description": "Compositor-steering hints carried with every scene.",
+      "type": "object",
+      "properties": {
+        "density": {
+          "description": "Visual density preference.",
+          "default": "comfortable",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Density"
+            }
+          ]
+        },
+        "intent_profile": {
+          "description": "Overall intent profile — tells compositors whether to bias dense+technical or sparse+ambient presentations.",
+          "default": "balanced",
+          "allOf": [
+            {
+              "$ref": "#/definitions/IntentProfile"
+            }
+          ]
+        },
+        "locale": {
+          "description": "BCP-47 locale (e.g. `\"en-US\"`, `\"es-CO\"`). Compositors localize formatting.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "preferred_surfaces": {
+          "description": "Ordered preferred surfaces, most preferred first. A compositor MAY skip a scene if its surface is not listed; compositors SHOULD respect the first match.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SurfaceKind"
+          }
+        },
+        "viewport": {
+          "description": "Rough viewport budget — hints for truncation/layout. `None` = unbounded.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Viewport"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "Severity": {
+      "description": "Severity level for confirmation dialogs, warnings, and alerts.",
+      "type": "string",
+      "enum": [
+        "info",
+        "notice",
+        "warning",
+        "danger"
+      ]
+    },
+    "SignalDisplay": {
+      "description": "How a `Signal` intent is surfaced.",
+      "oneOf": [
+        {
+          "description": "Just the current value, formatted by the compositor.",
+          "type": "string",
+          "enum": [
+            "inline"
+          ]
+        },
+        {
+          "description": "A miniature plot (sparkline, bar).",
+          "type": "string",
+          "enum": [
+            "sparkline"
+          ]
+        },
+        {
+          "description": "A badge (colored chip with value).",
+          "type": "string",
+          "enum": [
+            "badge"
+          ]
+        }
+      ]
+    },
+    "SignalRef": {
+      "description": "A reference to a live value. Supports nested paths for structured signals: `SignalRef { topic: \"plexus.state\", path: [\"quorum\", \"ratio\"] }` addresses the `ratio` field inside the `quorum` object inside the `plexus.state` signal.",
+      "type": "object",
+      "required": [
+        "topic"
+      ],
+      "properties": {
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "topic": {
+          "type": "string"
+        }
+      }
+    },
+    "SignalValue": {
+      "description": "A concrete signal value pushed onto the bus at a given instant.\n\nCompositors MAY cache last-known values to render bindings when a signal has not yet emitted.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "scalar"
+              ]
+            }
+          }
+        },
+        {
+          "type": [
+            "object",
+            "array"
+          ],
+          "items": {
+            "$ref": "#/definitions/TimePoint"
+          },
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "time_series"
+              ]
+            }
+          }
+        },
+        {
+          "type": [
+            "object",
+            "array"
+          ],
+          "items": {
+            "type": "number",
+            "format": "float"
+          },
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "vector"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "payload"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "event"
+              ]
+            },
+            "payload": true
+          }
+        }
+      ]
+    },
+    "SpatialFrame": {
+      "description": "Frame of reference for a spatial locus.",
+      "oneOf": [
+        {
+          "description": "Viewer-centric — `position` is in the compositor's viewport space.",
+          "type": "string",
+          "enum": [
+            "viewer"
+          ]
+        },
+        {
+          "description": "Scene-world — `position` is in the shared world coordinate system.",
+          "type": "string",
+          "enum": [
+            "world"
+          ]
+        },
+        {
+          "description": "Earth-fixed — `position` is (lat, lon, alt).",
+          "type": "string",
+          "enum": [
+            "geo"
+          ]
+        }
+      ]
+    },
+    "StreamChunk": {
+      "description": "A chunk of streaming payload.",
+      "type": "object",
+      "required": [
+        "payload",
+        "seq"
+      ],
+      "properties": {
+        "final_": {
+          "description": "True if this is the last chunk of the stream.",
+          "default": false,
+          "type": "boolean"
+        },
+        "payload": {
+          "description": "Encoded payload. Interpretation depends on the `StreamKind` of the originating `Stream` intent.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ChunkPayload"
+            }
+          ]
+        },
+        "seq": {
+          "description": "Sequence number (monotonic per stream). Compositors drop out-of-order chunks.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      }
+    },
+    "StreamKind": {
+      "description": "The content of a `Stream` channel.",
+      "oneOf": [
+        {
+          "description": "Token-by-token text (LLM generation, log tail).",
+          "type": "string",
+          "enum": [
+            "text"
+          ]
+        },
+        {
+          "description": "Audio PCM or encoded.",
+          "type": "string",
+          "enum": [
+            "audio"
+          ]
+        },
+        {
+          "description": "Arbitrary binary frames.",
+          "type": "string",
+          "enum": [
+            "binary"
+          ]
+        },
+        {
+          "description": "Structured JSON lines.",
+          "type": "string",
+          "enum": [
+            "jsonl"
+          ]
+        }
+      ]
+    },
+    "SurfaceKind": {
+      "description": "The shape of surface a compositor renders onto.",
+      "oneOf": [
+        {
+          "description": "Plain ANSI / text terminal or plain-text document.",
+          "type": "string",
+          "enum": [
+            "text"
+          ]
+        },
+        {
+          "description": "2D raster or vector canvas (browser DOM, native 2D).",
+          "type": "string",
+          "enum": [
+            "two_d"
+          ]
+        },
+        {
+          "description": "3D world (WebGPU, native 3D engines).",
+          "type": "string",
+          "enum": [
+            "three_d"
+          ]
+        },
+        {
+          "description": "GPU shader program — agents become field/material parameters.",
+          "type": "string",
+          "enum": [
+            "shader"
+          ]
+        },
+        {
+          "description": "Audio playback surface (speech, ambient music, sonification).",
+          "type": "string",
+          "enum": [
+            "audio"
+          ]
+        },
+        {
+          "description": "Spatial computing (Vision Pro / Quest / AR).",
+          "type": "string",
+          "enum": [
+            "spatial"
+          ]
+        },
+        {
+          "description": "Haptic / tactile feedback.",
+          "type": "string",
+          "enum": [
+            "tactile"
+          ]
+        }
+      ]
+    },
+    "TimePoint": {
+      "description": "Single point in a time-series signal.",
+      "type": "object",
+      "required": [
+        "t",
+        "v"
+      ],
+      "properties": {
+        "t": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "v": true
+      }
+    },
+    "Transform": {
+      "description": "Optional transformation applied to the signal value before binding.\n\nTransforms are intentionally limited to pure, deterministic functions so compositors can execute them safely without a scripting runtime.",
+      "oneOf": [
+        {
+          "description": "Pass the value through unchanged.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "identity"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Format the value into a template string. `{}` is replaced with the value.",
+          "type": "object",
+          "required": [
+            "kind",
+            "template"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "format"
+              ]
+            },
+            "template": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Clamp a numeric value into `[min, max]`.",
+          "type": "object",
+          "required": [
+            "kind",
+            "max",
+            "min"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "clamp"
+              ]
+            },
+            "max": {
+              "type": "number",
+              "format": "double"
+            },
+            "min": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        },
+        {
+          "description": "Round a numeric value to `decimals` places.",
+          "type": "object",
+          "required": [
+            "decimals",
+            "kind"
+          ],
+          "properties": {
+            "decimals": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "round"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Multiply by 100 and append `\"%\"`.",
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "percent"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Valence": {
+      "description": "Qualitative feedback direction.",
+      "type": "string",
+      "enum": [
+        "positive",
+        "neutral",
+        "negative"
+      ]
+    },
+    "Viewport": {
+      "description": "Rough viewport budget. Compositors with bounded surfaces (terminals, small screens) SHOULD respect these; surfaces without a natural viewport (audio, spatial) MAY ignore.",
+      "type": "object",
+      "required": [
+        "cols",
+        "rows"
+      ],
+      "properties": {
+        "cols": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "rows": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      }
+    },
+    "Visibility": {
+      "description": "Whether this slot should be offered to the user right now.",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "visible"
+          ]
+        },
+        {
+          "description": "Rendered but visually de-emphasized.",
+          "type": "string",
+          "enum": [
+            "muted"
+          ]
+        },
+        {
+          "description": "Not rendered; still in the IR for programmatic inspection.",
+          "type": "string",
+          "enum": [
+            "hidden"
+          ]
+        }
+      ]
+    }
+  }
+}

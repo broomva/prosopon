@@ -1,0 +1,11 @@
+# Git mailmap — corrects historical author attribution for display.
+#
+# Format: <correct-name> <correct-email> <commit-name> <commit-email>
+# Honored by `git log`, `git shortlog`, `git blame`, and GitHub's UI.
+# See: https://git-scm.com/docs/gitmailmap
+#
+# 2026-05-13: A local override (user.email=carlosbvalbuena@gmail.com) was
+# used to author 29 commits in this repo. Map them back to the canonical
+# identity. Local override has been removed; future commits inherit global.
+
+Carlos D. Escobar-Valbuena <carlosdavidescobar@gmail.com> Carlos Escobar <carlosbvalbuena@gmail.com>

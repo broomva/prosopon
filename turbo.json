@@ -1,0 +1,43 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.json",
+        "package.json",
+        "tsconfig*.json"
+      ],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**/*.ts",
+        "tests/**/*.ts",
+        "scripts/**/*.ts",
+        "tsconfig*.json"
+      ]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**/*.ts",
+        "tests/**/*.ts",
+        "package.json"
+      ]
+    },
+    "generate": {
+      "inputs": [
+        "src/generated/*.json",
+        "scripts/generate-types.ts"
+      ],
+      "outputs": ["src/generated/types.ts"],
+      "cache": false
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

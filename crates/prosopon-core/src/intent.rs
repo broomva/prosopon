@@ -111,6 +111,69 @@ pub enum Intent {
         label: Option<String>,
     },
 
+    // ───────────────── Filesystem ─────────────────
+    /// A filesystem read. The `content` slot fills in when the read completes.
+    ///
+    /// Lifecycle — mirrors the `ToolCall` pattern:
+    /// - `NodeAdded` with `content: None` when the agent decides to read.
+    ///   Paired lifecycle status `pending`.
+    /// - `NodeUpdated { patch: { intent: FileRead { content: Some(...) } } }`
+    ///   when the content lands. Lifecycle moves to `resolved`.
+    ///
+    /// For very large reads the agent MAY pair this with a sibling `Stream`
+    /// intent and populate `content` only on `StreamChunk { final_: true }`.
+    FileRead {
+        /// Absolute or workspace-relative path. Compositors MAY render it as
+        /// a clickable target. No scheme is implied; the emitter decides.
+        path: String,
+        /// File content once the read completes. Absent while in-flight.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        content: Option<String>,
+        /// Byte count. Compositors may compute from `content.len()` if the
+        /// emitter doesn't supply it; supplying it authoritatively is
+        /// preferred for multi-byte encodings.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        bytes: Option<u64>,
+        /// MIME type hint — enables syntax highlighting and preview-mode
+        /// switching. Compositors SHOULD assume `text/plain` when absent.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        mime: Option<String>,
+    },
+
+    /// A filesystem write. `op` narrows the kind of write (create / write /
+    /// append / delete); `content` slots in when the write completes.
+    ///
+    /// Lifecycle:
+    /// 1. `NodeAdded` with `content: None` and `op` set. Lifecycle `pending`.
+    /// 2. `NodeUpdated` patching `content` (and `bytes` if the emitter knows
+    ///    them) when the write resolves. Lifecycle `resolved` on success,
+    ///    `failed` on error.
+    ///
+    /// For streamed writes, pair with a sibling `Stream` intent and patch
+    /// `content` on stream completion.
+    FileWrite {
+        /// Target path — see `FileRead::path`.
+        path: String,
+        /// The kind of write. Constrained via `FileWriteKind`.
+        op: FileWriteKind,
+        /// The full body written. Absent until the write resolves.
+        /// SHOULD be absent for `FileWriteKind::Delete`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        content: Option<String>,
+        /// Byte count — authoritative when supplied, else derive from
+        /// `content.len()`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        bytes: Option<u64>,
+        /// Optional human-readable title the agent chose for this artifact.
+        /// Useful when `path` is a synthetic workspace path and `title` is
+        /// the user-facing name the compositor should surface.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        title: Option<String>,
+        /// MIME type hint, as in `FileRead`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        mime: Option<String>,
+    },
+
     // ───────────────── Structural ─────────────────
     /// A container whose `GroupKind` tells the compositor how to lay out children.
     Group { layout: GroupKind },
@@ -273,6 +336,25 @@ pub enum SpatialFrame {
     Geo,
 }
 
+/// What kind of filesystem write a `FileWrite` intent represents.
+///
+/// `#[non_exhaustive]` so future variants (e.g. `Patch` for diff-based writes)
+/// land additively.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[non_exhaustive]
+#[serde(rename_all = "snake_case")]
+pub enum FileWriteKind {
+    /// New file at `path`. The write MUST fail if the file already exists.
+    Create,
+    /// Overwrite an existing file at `path`. Compositors MAY render as
+    /// a `mod`/`modified` badge.
+    Write,
+    /// Append content to the end of an existing file.
+    Append,
+    /// Remove the file at `path`. `content` SHOULD be absent.
+    Delete,
+}
+
 /// A coherent grouping of agents — renders as a cluster, swarm, or quorum.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
@@ -336,5 +418,100 @@ mod tests {
         };
         let json = serde_json::to_value(&i).unwrap();
         assert_eq!(json["projection"], "heatmap");
+    }
+
+    #[test]
+    fn file_read_pending_roundtrip() {
+        // Pending read — `content` + `bytes` + `mime` omitted entirely.
+        let i = Intent::FileRead {
+            path: "/workspace/notes/hello.md".into(),
+            content: None,
+            bytes: None,
+            mime: None,
+        };
+        let json = serde_json::to_value(&i).unwrap();
+        assert_eq!(json["type"], "file_read");
+        assert_eq!(json["path"], "/workspace/notes/hello.md");
+        // Optional fields skip serialization when None.
+        assert!(json.get("content").is_none());
+        assert!(json.get("bytes").is_none());
+        assert!(json.get("mime").is_none());
+        let back: Intent = serde_json::from_value(json).unwrap();
+        assert_eq!(back, i);
+    }
+
+    #[test]
+    fn file_read_resolved_roundtrip() {
+        let i = Intent::FileRead {
+            path: "notes/hello.md".into(),
+            content: Some("# hi\n".into()),
+            bytes: Some(5),
+            mime: Some("text/markdown".into()),
+        };
+        let json = serde_json::to_value(&i).unwrap();
+        assert_eq!(json["content"], "# hi\n");
+        assert_eq!(json["bytes"], 5);
+        assert_eq!(json["mime"], "text/markdown");
+        let back: Intent = serde_json::from_value(json).unwrap();
+        assert_eq!(back, i);
+    }
+
+    #[test]
+    fn file_write_create_pending() {
+        let i = Intent::FileWrite {
+            path: "notes/audit.md".into(),
+            op: FileWriteKind::Create,
+            content: None,
+            bytes: None,
+            title: Some("Audit report".into()),
+            mime: Some("text/markdown".into()),
+        };
+        let json = serde_json::to_value(&i).unwrap();
+        assert_eq!(json["type"], "file_write");
+        assert_eq!(json["op"], "create");
+        assert_eq!(json["title"], "Audit report");
+        assert!(json.get("content").is_none());
+        let back: Intent = serde_json::from_value(json).unwrap();
+        assert_eq!(back, i);
+    }
+
+    #[test]
+    fn file_write_op_kinds() {
+        // Each variant serializes to its snake_case name.
+        for (kind, name) in [
+            (FileWriteKind::Create, "create"),
+            (FileWriteKind::Write, "write"),
+            (FileWriteKind::Append, "append"),
+            (FileWriteKind::Delete, "delete"),
+        ] {
+            let i = Intent::FileWrite {
+                path: "/tmp/x".into(),
+                op: kind,
+                content: None,
+                bytes: None,
+                title: None,
+                mime: None,
+            };
+            let json = serde_json::to_value(&i).unwrap();
+            assert_eq!(json["op"], name, "op {kind:?} should serialize as {name}");
+            let back: Intent = serde_json::from_value(json).unwrap();
+            assert_eq!(back, i);
+        }
+    }
+
+    #[test]
+    fn file_write_resolved_with_content() {
+        let i = Intent::FileWrite {
+            path: "/tmp/note.txt".into(),
+            op: FileWriteKind::Write,
+            content: Some("resolved body".into()),
+            bytes: Some(13),
+            title: None,
+            mime: None,
+        };
+        let json = serde_json::to_value(&i).unwrap();
+        assert_eq!(json["bytes"], 13);
+        let back: Intent = serde_json::from_value(json).unwrap();
+        assert_eq!(back, i);
     }
 }

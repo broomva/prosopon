@@ -1,0 +1,25 @@
+{
+  "name": "prosopon-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Workspace root — ships Rust crates via Cargo and TypeScript packages via npm from the same repo.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/broomva/prosopon.git"
+  },
+  "packageManager": "bun@1.3.3",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test:js": "turbo run test",
+    "generate": "turbo run generate",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.8"
+  }
+}

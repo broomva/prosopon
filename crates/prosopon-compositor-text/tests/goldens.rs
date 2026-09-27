@@ -36,3 +36,13 @@ fn streaming_tokens_snapshot() {
     let out = render_scene(&scene, 80, &RenderOptions::plain());
     insta::assert_snapshot!(out);
 }
+
+#[test]
+fn file_flow_snapshot() {
+    // Exercises all FileRead / FileWrite permutations: pending + resolved
+    // reads, each FileWriteKind, and a delete. Locks in the text
+    // compositor's rendering contract for RFC-0004.
+    let scene = load("file_flow");
+    let out = render_scene(&scene, 80, &RenderOptions::plain());
+    insta::assert_snapshot!(out);
+}

@@ -4,6 +4,23 @@ All notable changes to this project will be documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Repo is now a bilingual monorepo.** The existing Rust workspace
+  (crates.io-bound) is joined by a Bun + Turborepo workspace
+  (`packages/prosopon-ts`, npm-bound). Rust crates still publish via
+  `cargo publish`; TS package publishes via `npm publish`. Unified dev
+  entry points in the `Makefile` (`js-smoke`, `js-build`, `js-pack`, …).
+  See `docs/release/publishing.md` for the runbook.
+- **`@broomva/prosopon` v0.2.0** (not yet published). TypeScript bindings
+  previously lived in `broomva.tech/packages/prosopon-ts`; now canonical
+  here, tracking `IR_SCHEMA_VERSION`. Ships with pre-built `dist/` + .d.ts
+  + source maps. `prepublishOnly` gates publish on clean + build + test.
+- **CI additions**: new `js` job (typecheck + test + build + `npm pack` preview)
+  and `schema-parity` job (regenerates the TS schema snapshots from the
+  current Rust source of truth and fails if they drift).
+
 ## [0.2.0-alpha.2] — 2026-04-23
 
 ### Added

@@ -254,6 +254,73 @@ fn render_intent(
             let label = label.as_deref().unwrap_or("");
             writeln!(out, "{pad}{prefix}{bar} {label}").ok();
         }
+        Intent::FileRead {
+            path,
+            content,
+            bytes,
+            mime: _,
+        } => {
+            let label = style("READ ", Color::Cyan, opts);
+            let size = bytes.map(|n| format!(" ({n} B)")).unwrap_or_default();
+            let state = if content.is_some() {
+                ""
+            } else {
+                " (reading…)"
+            };
+            writeln!(out, "{pad}{prefix}{label} {path}{size}{state}").ok();
+            if let Some(body) = content {
+                for line in body.lines().take(3) {
+                    writeln!(out, "{pad}  {}", line).ok();
+                }
+                if body.lines().count() > 3 {
+                    writeln!(out, "{pad}  …").ok();
+                }
+            }
+        }
+        Intent::FileWrite {
+            path,
+            op,
+            content,
+            bytes,
+            title,
+            mime: _,
+        } => {
+            let (label, color) = match op {
+                prosopon_core::FileWriteKind::Create => ("CREATE", Color::Green),
+                prosopon_core::FileWriteKind::Write => ("WRITE ", Color::Yellow),
+                prosopon_core::FileWriteKind::Append => ("APPEND", Color::Cyan),
+                prosopon_core::FileWriteKind::Delete => ("DELETE", Color::Red),
+                // Forward-compat: unknown future write kinds render as a generic
+                // "WRITE?" badge so the node is still visible.
+                _ => ("WRITE?", Color::Magenta),
+            };
+            let size = bytes.map(|n| format!(" ({n} B)")).unwrap_or_default();
+            let state = if content.is_some() || matches!(op, prosopon_core::FileWriteKind::Delete) {
+                ""
+            } else {
+                " (writing…)"
+            };
+            writeln!(
+                out,
+                "{pad}{prefix}{} {}{}{}",
+                style(label, color, opts),
+                path,
+                size,
+                state,
+            )
+            .ok();
+            if let Some(t) = title {
+                writeln!(out, "{pad}  {}", style(t, Color::Bold, opts)).ok();
+            }
+            if let Some(body) = content {
+                for line in body.lines().take(3) {
+                    writeln!(out, "{pad}  {}", line).ok();
+                }
+                if body.lines().count() > 3 {
+                    writeln!(out, "{pad}  …").ok();
+                }
+            }
+        }
         Intent::Group { layout: _ } => {
             // A group is a container; children will render themselves.
         }
