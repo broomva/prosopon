@@ -46,7 +46,7 @@ Add two first-class Intent variants:
 FileRead {
     path: String,
     /// The content that was read. Absent while the read is in-flight;
-    /// populated once complete via `NodePatch` or `StreamChunk`.
+    /// populated once complete via a `NodeUpdated { patch }` event or `StreamChunk`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     content: Option<String>,
     /// Byte count of `content`. Optional; compositors may compute from
